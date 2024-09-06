@@ -1,7 +1,5 @@
 # **StockSnap: Controle de Estoque com React Native**
 
-## **Descrição**
-
 (Projeto em Andamento)
 
 **StockSnap** é uma aplicação Android desenvolvida com React Native, projetada para otimizar o controle de estoque de forma intuitiva e eficiente. Este aplicativo permite aos usuários gerenciar seu inventário adicionando itens através de fotos capturadas diretamente no aplicativo, registrando detalhes como nome, quantidade, descrição e localização. 
