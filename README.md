@@ -1,4 +1,4 @@
-# **StockSnap: Controle de Estoque com React Native**
+# **SnapStock: Controle de Estoque com React Native**
 
 (Projeto em Andamento)
 
