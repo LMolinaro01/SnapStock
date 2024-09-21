@@ -18,7 +18,9 @@
 
 ## **Tecnologias Utilizadas**
 
-- **React Native**: Para desenvolvimento do aplicativo móvel.
+- **React Native**
+- **Java Script**
+- Banco de dados (NoSQL)
 <!-- - **Node.js**: Para gerenciamento de pacotes e execução do aplicativo.
 - **Firebase** (ou outra solução de banco de dados): Para persistência de dados e notificações push. -->
 
