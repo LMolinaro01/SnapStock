@@ -1,4 +1,4 @@
-# **SnapStock: App Mobile de Controle de Estoque com React Native**
+# **SnapStock: Aplicação Mobile de Controle de Estoque com React Native**
 
 (Projeto em Andamento)
 
