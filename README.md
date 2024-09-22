@@ -19,7 +19,7 @@
 ## **Tecnologias Utilizadas**
 
 - **React Native**
-- **Java Script**
+- **JavaSript**
 - **Banco de dados (NoSQL)**
 <!-- - **Node.js**: Para gerenciamento de pacotes e execução do aplicativo.
 - **Firebase** (ou outra solução de banco de dados): Para persistência de dados e notificações push. -->
