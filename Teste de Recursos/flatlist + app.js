@@ -14,9 +14,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { launchCamera } from "react-native-image-picker";
+import { Alert } from "react-native";
 
-const Stack = createStackNavigator(); // Navegação em pilha (stack)
-const Drawer = createDrawerNavigator(); // Navegação em gaveta (drawer)
+
+const Stack = createStackNavigator(); 
+const Drawer = createDrawerNavigator(); 
 
 const PreLogin = ({ navigation }) => {
   return (
@@ -56,9 +58,8 @@ const FormularioLogin = ({ route }) => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    // Simples verificação de login
     if (username === "admin" && password === "123") {
-      route.params.funcLogar(true); // Define o estado de login como verdadeiro
+      route.params.funcLogar(true);
     } else {
       alert("Credenciais incorretas");
     }
@@ -87,26 +88,12 @@ const FormularioLogin = ({ route }) => {
   );
 };
 
-// Tela de Registro
 const Registrar = () => <Text>Registrar</Text>;
-
-// Tela de Perfil
-const Perfil = () => (
-  <View>
-    <Text>Perfil legal</Text>
-  </View>
-);
-
-// Tela de Configurações
+const Perfil = () => <View><Text>Perfil legal</Text></View>;
 const Config = () => <Text>Configurações</Text>;
-
-// Tela de Exibição
 const Exibir = () => <Text>Exibir conteúdo</Text>;
-
-// Tela de Fotos
 const Fotos = () => <Text>Galeria de Fotos</Text>;
 
-// Tela Principal de Listagem de Itens
 const HomeScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -114,51 +101,64 @@ const HomeScreen = ({ navigation }) => {
     name: "",
     quantity: 1,
     description: "",
-    class: "",
     link: "",
     image: null,
   });
 
-  // Adiciona novo item
+  const [editingItem, setEditingItem] = useState(null);
+
   const addItem = () => {
     setItems([...items, { ...newItem, id: items.length.toString() }]);
-    setNewItem({
-      name: "",
-      quantity: 1,
-      description: "",
-      class: "",
-      link: "",
-      image: null,
-    });
+    setNewItem({ name: "", quantity: 1, description: "", link: "", image: null });
     setModalVisible(false);
   };
 
-  // Atualiza a quantidade do item
   const updateQuantity = (id, amount) => {
-    const updatedItems = items.map((item) =>
-      item.id === id ? { ...item, quantity: item.quantity + amount } : item
-    );
-    setItems(updatedItems);
-  };
+  const updatedItems = items.map(item => {
+    if (item.id === id) {
+      const newQuantity = item.quantity + amount;
+      if (newQuantity <= 0) {
+        Alert.alert(
+          "Excluir Item",
+          "Você realmente deseja excluir este item?",
+          [
+            { text: "Cancelar", style: "cancel" },
+            {
+              text: "Excluir",
+              onPress: () => {
+                setItems(prevItems => prevItems.filter(it => it.id !== id));
+              },
+            },
+          ],
+          { cancelable: true }
+        );
+        return item; // Retorna o item sem alterações
+      }
+      return { ...item, quantity: newQuantity }; // Atualiza a quantidade
+    }
+    return item; // Retorna o item sem alterações
+  });
+  setItems(updatedItems.filter(item => item.quantity > 0)); // Remove os itens com quantidade <= 0
+};
 
-  // Função para tirar foto
+
   const handleTakePhoto = () => {
-    launchCamera({}, (response) => {
+    launchCamera({}, response => {
       if (response.assets) {
         setNewItem({ ...newItem, image: response.assets[0].uri });
       }
     });
   };
 
-  // Renderiza cada item
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => navigation.navigate("ItemDetails", { item, setItems })}
+      onPress={() => {
+        setEditingItem(item); // Define o item que está sendo editado
+        setModalVisible(true); // Abre o modal de edição
+      }}
     >
-      {item.image && (
-        <Image source={{ uri: item.image }} style={styles.itemImage} />
-      )}
+      {item.image && <Image source={{ uri: item.image }} style={styles.itemImage} />}
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.name}</Text>
         <View style={styles.quantityContainer}>
@@ -179,44 +179,69 @@ const HomeScreen = ({ navigation }) => {
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          setEditingItem(null); // Reseta o item a ser editado
+          setModalVisible(true);
+        }}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
-      {/* Modal para adicionar novo item */}
+      {/* Modal para adicionar e editar item */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TextInput
               style={styles.input}
               placeholder="Nome"
-              value={newItem.name}
-              onChangeText={(text) => setNewItem({ ...newItem, name: text })}
+              value={editingItem ? editingItem.name : newItem.name}
+              onChangeText={(text) => {
+                if (editingItem) {
+                  setEditingItem({ ...editingItem, name: text });
+                } else {
+                  setNewItem({ ...newItem, name: text });
+                }
+              }}
             />
             <TextInput
               style={styles.input}
               placeholder="Descrição"
-              value={newItem.description}
-              onChangeText={(text) =>
-                setNewItem({ ...newItem, description: text })
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Classe"
-              value={newItem.class}
-              onChangeText={(text) => setNewItem({ ...newItem, class: text })}
+              value={editingItem ? editingItem.description : newItem.description}
+              onChangeText={(text) => {
+                if (editingItem) {
+                  setEditingItem({ ...editingItem, description: text });
+                } else {
+                  setNewItem({ ...newItem, description: text });
+                }
+              }}
             />
             <TextInput
               style={styles.input}
               placeholder="Link (Opcional)"
-              value={newItem.link}
-              onChangeText={(text) => setNewItem({ ...newItem, link: text })}
+              value={editingItem ? editingItem.link : newItem.link}
+              onChangeText={(text) => {
+                if (editingItem) {
+                  setEditingItem({ ...editingItem, link: text });
+                } else {
+                  setNewItem({ ...newItem, link: text });
+                }
+              }}
             />
             <View>
               <Button title="Tirar Foto" onPress={handleTakePhoto} />
-              <Button title="Adicionar Item" onPress={addItem} />
+              <Button
+                title={editingItem ? "Salvar Alterações" : "Adicionar Item"}
+                onPress={() => {
+                  if (editingItem) {
+                    setItems((prevItems) =>
+                      prevItems.map((it) => (it.id === editingItem.id ? editingItem : it))
+                    );
+                  } else {
+                    addItem();
+                  }
+                  setModalVisible(false);
+                }}
+              />
               <Button title="Cancelar" onPress={() => setModalVisible(false)} />
             </View>
           </View>
@@ -226,16 +251,16 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-// Tela de Detalhes do Item
+
 const ItemDetails = ({ route, navigation }) => {
-  const { item, setItems } = route.params; // Recebe o item e a função setItems
+  const { item, setItems } = route.params;
   const [editedItem, setEditedItem] = useState(item);
 
   const saveChanges = () => {
     setItems((prevItems) =>
       prevItems.map((it) => (it.id === editedItem.id ? editedItem : it))
     );
-    navigation.goBack(); // Volta para a tela anterior após salvar
+    navigation.goBack();
   };
 
   return (
@@ -260,18 +285,11 @@ const ItemDetails = ({ route, navigation }) => {
         value={editedItem.link}
         onChangeText={(text) => setEditedItem({ ...editedItem, link: text })}
       />
-      <TextInput
-        style={styles.input}
-        value={editedItem.class}
-        onChangeText={(text) => setEditedItem({ ...editedItem, class: text })}
-      />
       <Button title="Salvar Alterações" onPress={saveChanges} />
     </View>
   );
 };
 
-
-// App principal com controle de login
 const App = () => {
   const [EstaLogado, setLogado] = useState(false);
 
@@ -294,57 +312,16 @@ const App = () => {
           initialParams={{ funcLogar: setLogado }}
         />
         <Stack.Screen name="Registrar" component={Registrar} />
-        <Stack.Screen name="Perfil" component={Perfil} />
-        <Stack.Screen name="ItemDetails" component={ItemDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-  },
-  itemImage: { width: 50, height: 50, marginRight: 10 },
-  itemInfo: { flex: 1, flexDirection: "row", justifyContent: "space-between" },
-  itemName: { fontSize: 18 },
-  itemQuantity: { marginHorizontal: 10, fontSize: 16 },
-  quantityContainer: { flexDirection: "row", alignItems: "center" },
-
-  addButton: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#007AFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: { color: "white", fontSize: 24 },
-  buttonContainer: { marginVertical: 10 },
-
-  modalContainer: {
+  container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
     padding: 20,
-    borderRadius: 10,
-    width: "80%",
   },
-
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -352,7 +329,66 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 5,
   },
-  detailImage: { width: 200, height: 200, marginBottom: 20 },
+  buttonContainer: {
+    marginVertical: 10,
+  },
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+  },
+  itemInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  itemName: {
+    fontSize: 16,
+  },
+  itemImage: {
+    width: 50,
+    height: 50,
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  itemQuantity: {
+    marginHorizontal: 10,
+  },
+  addButton: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    backgroundColor: "#007BFF",
+    borderRadius: 50,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 30,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  detailImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+  },
 });
 
 export default App;
