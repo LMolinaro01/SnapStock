@@ -1,10 +1,4 @@
-import {
-  SafeAreaView,
-  Button,
-  TextInput,
-  StyleSheet,
-  Text,
-} from "react-native";
+import { SafeAreaView, Button, TextInput, StyleSheet, Text,} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 
@@ -15,7 +9,9 @@ const _storeData = async (nome, codigo, numero) => {
     const data = { nome, codigo, numero };
 
     await AsyncStorage.setItem("dados", JSON.stringify(data)); // transforma em uma string
+    
     alert("Dados salvos com sucesso!");
+
   } catch (error) {
     alert("Erro ao salvar os dados: " + error);
   }
@@ -25,13 +21,13 @@ const _storeData = async (nome, codigo, numero) => {
 const _retrieveData = async () => {
   try {
     // Recupera o valor salvo no AsyncStorage
-    const value = await AsyncStorage.getItem("dados");
+    const value = await AsyncStorage.getItem("dados"); //fiz um getter do objeto
 
     if (value !== null) {
-      const data = JSON.parse(value); // converte o valor string de volta
+      const data = JSON.parse(value); // converte o valor string de volta para objeto
 
       alert(
-        `Nome: ${data.nome}, Código: ${data.codigo}, Número: ${data.numero}`
+        `Nome: ${data.nome}, Código: ${data.codigo}, Número: ${data.numero}` //objeto.atributo
       );
     } else {
       alert("Nenhum dado encontrado.");
@@ -41,6 +37,7 @@ const _retrieveData = async () => {
   }
 };
 
+//Interface Visual
 export default function App() {
   const [valorSalvarNome, setValorSalvarNome] = useState("");
   const [valorSalvarCodigo, setValorSalvarCodigo] = useState("");
@@ -51,7 +48,7 @@ export default function App() {
       <Text>Digite o Nome</Text>
       <TextInput
         value={valorSalvarNome}
-        onChangeText={setValorSalvarNome}
+        onChangeText={setValorSalvarNome} //garante que o valor digitado pelo usuário no campo seja armazenado corretamente no estado correspondente. Resumindo, ele muda o valor assim que o usuário digita
         style={styles.input}
       />
 
@@ -82,7 +79,6 @@ export default function App() {
 
 // Estilos
 const styles = StyleSheet.create({
- 
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
