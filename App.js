@@ -2,19 +2,14 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  FlatList,
   TextInput,
   Button,
-  TouchableOpacity,
   Image,
-  Modal,
   StyleSheet,
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { launchCamera } from "react-native-image-picker";
-import { Alert } from "react-native";
 import HomeScreen from "./Home";
 
 
