@@ -100,13 +100,41 @@ const HomeScreen = ({ navigation }) => {
     storeItems(updatedItems); // Atualiza o armazenamento
   };
 
-  const handleTakePhoto = () => {
-    launchCamera({}, (response) => {
-      if (response.assets) {
-        setNewItem({ ...newItem, image: response.assets[0].uri });
-      }
-    });
-  };
+  import { PermissionsAndroid, Platform } from 'react-native';
+
+const requestCameraPermission = async () => {
+  if (Platform.OS === 'android') {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: "Permissão para acessar a câmera",
+          message: "O app precisa de acesso à câmera para tirar fotos",
+          buttonNeutral: "Pergunte depois",
+          buttonNegative: "Cancelar",
+          buttonPositive: "OK"
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  }
+  return true; 
+};
+
+const handleTakePhoto = async () => {
+  const hasPermission = await requestCameraPermission();
+  if (!hasPermission) return;
+
+  launchCamera({}, (response) => {
+    if (response.assets) {
+      setNewItem({ ...newItem, image: response.assets[0].uri });
+    }
+  });
+};
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
