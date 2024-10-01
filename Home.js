@@ -10,6 +10,9 @@ import {
   Modal,
   StyleSheet,
   Alert,
+  ToastAndroid,
+  PermissionsAndroid,
+  Platform,
 } from "react-native";
 import { launchCamera } from "react-native-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -56,6 +59,11 @@ const HomeScreen = ({ navigation }) => {
     loadItems();
   }, []);
 
+  // Exibe um toast de confirmação
+  const showToast = (message) => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+  };
+
   // Função para adicionar ou editar item
   const addItem = () => {
     const updatedItems = editingItem
@@ -65,10 +73,13 @@ const HomeScreen = ({ navigation }) => {
     setItems(updatedItems);
     storeItems(updatedItems); // Armazena os itens no AsyncStorage
 
+    showToast(editingItem ? "Item editado com sucesso!" : "Item adicionado com sucesso!");
+
     setNewItem({ name: "", quantity: 1, description: "", link: "", image: null });
     setModalVisible(false);
   };
 
+  // Atualiza a quantidade ou exclui o item se for zero
   const updateQuantity = (id, amount) => {
     const updatedItems = items.map((item) => {
       if (item.id === id) {
@@ -81,11 +92,7 @@ const HomeScreen = ({ navigation }) => {
               { text: "Cancelar", style: "cancel" },
               {
                 text: "Excluir",
-                onPress: () => {
-                  const filteredItems = items.filter((it) => it.id !== id);
-                  setItems(filteredItems);
-                  storeItems(filteredItems); // Atualiza o armazenamento
-                },
+                onPress: () => removeItem(id),
               },
             ],
             { cancelable: true }
@@ -100,80 +107,59 @@ const HomeScreen = ({ navigation }) => {
     storeItems(updatedItems); // Atualiza o armazenamento
   };
 
-  import { PermissionsAndroid, Platform } from 'react-native';
+  // Função para remover um item
+  const removeItem = (id) => {
+    const filteredItems = items.filter((item) => item.id !== id);
+    setItems(filteredItems);
+    storeItems(filteredItems); // Atualiza o armazenamento
+    showToast("Item removido com sucesso!");
+  };
 
-const requestCameraPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: "Permissão para acessar a câmera",
-          message: "O app precisa de acesso à câmera para tirar fotos",
-          buttonNeutral: "Pergunte depois",
-          buttonNegative: "Cancelar",
-          buttonPositive: "OK"
-        }
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-      console.warn(err);
-      return false;
-    }
-  }
-  return true; 
-};
-
-const handleTakePhoto = async () => {
-  const hasPermission = await requestCameraPermission();
-  if (!hasPermission) return;
-
-  launchCamera({}, (response) => {
-    if (response.assets) {
-      setNewItem({ ...newItem, image: response.assets[0].uri });
-    }
-  });
-};
-
-const handleInputChange = (field, value) => {
-  if (editingItem) {
-    setEditingItem({ ...editingItem, [field]: value });
-  } else {
-    setNewItem({ ...newItem, [field]: value });
-  }
-};
-
-const removeItem = (id) => {
-  const filteredItems = items.filter((item) => item.id !== id);
-  setItems(filteredItems);
-  storeItems(filteredItems); // Atualiza o armazenamento
-};
-
-const updateQuantity = (id, amount) => {
-  const updatedItems = items.map((item) => {
-    if (item.id === id) {
-      const newQuantity = item.quantity + amount;
-      if (newQuantity <= 0) {
-        Alert.alert(
-          "Excluir Item",
-          "Você realmente deseja excluir este item?",
-          [
-            { text: "Cancelar", style: "cancel" },
-            { text: "Excluir", onPress: () => removeItem(id) },
-          ],
-          { cancelable: true }
+  // Função para verificar permissão de câmera
+  const requestCameraPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Permissão para acessar a câmera",
+            message: "O app precisa de acesso à câmera para tirar fotos",
+            buttonNeutral: "Pergunte depois",
+            buttonNegative: "Cancelar",
+            buttonPositive: "OK"
+          }
         );
-        return item;
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
       }
-      return { ...item, quantity: newQuantity };
     }
-    return item;
-  });
-  setItems(updatedItems);
-  storeItems(updatedItems); // Atualiza o armazenamento
-};
+    return true; // iOS não requer permissões explícitas
+  };
 
+  // Função para tirar foto
+  const handleTakePhoto = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
 
+    launchCamera({}, (response) => {
+      if (response.assets) {
+        setNewItem({ ...newItem, image: response.assets[0].uri });
+      }
+    });
+  };
+
+  // Função para gerenciar mudanças nos inputs
+  const handleInputChange = (field, value) => {
+    if (editingItem) {
+      setEditingItem({ ...editingItem, [field]: value });
+    } else {
+      setNewItem({ ...newItem, [field]: value });
+    }
+  };
+
+  // Renderiza cada item na lista
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.itemContainer}
@@ -223,37 +209,19 @@ const updateQuantity = (id, amount) => {
               style={styles.input}
               placeholder="Nome"
               value={editingItem ? editingItem.name : newItem.name}
-              onChangeText={(text) => {
-                if (editingItem) {
-                  setEditingItem({ ...editingItem, name: text });
-                } else {
-                  setNewItem({ ...newItem, name: text });
-                }
-              }}
+              onChangeText={(text) => handleInputChange('name', text)}
             />
             <TextInput
               style={styles.input}
               placeholder="Descrição"
               value={editingItem ? editingItem.description : newItem.description}
-              onChangeText={(text) => {
-                if (editingItem) {
-                  setEditingItem({ ...editingItem, description: text });
-                } else {
-                  setNewItem({ ...newItem, description: text });
-                }
-              }}
+              onChangeText={(text) => handleInputChange('description', text)}
             />
             <TextInput
               style={styles.input}
               placeholder="Link (Opcional)"
               value={editingItem ? editingItem.link : newItem.link}
-              onChangeText={(text) => {
-                if (editingItem) {
-                  setEditingItem({ ...editingItem, link: text });
-                } else {
-                  setNewItem({ ...newItem, link: text });
-                }
-              }}
+              onChangeText={(text) => handleInputChange('link', text)}
             />
             <View>
               <Button title="Tirar Foto" onPress={handleTakePhoto} />
@@ -282,7 +250,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ddd',
   },
@@ -337,21 +305,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 300,
+    width: '80%',
     padding: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
-    alignItems: 'center',
+    elevation: 10,
   },
   input: {
-    width: '100%',
-    padding: 10,
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 10,
   },
 });
