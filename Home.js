@@ -143,6 +143,36 @@ const handleInputChange = (field, value) => {
   }
 };
 
+const removeItem = (id) => {
+  const filteredItems = items.filter((item) => item.id !== id);
+  setItems(filteredItems);
+  storeItems(filteredItems); // Atualiza o armazenamento
+};
+
+const updateQuantity = (id, amount) => {
+  const updatedItems = items.map((item) => {
+    if (item.id === id) {
+      const newQuantity = item.quantity + amount;
+      if (newQuantity <= 0) {
+        Alert.alert(
+          "Excluir Item",
+          "Você realmente deseja excluir este item?",
+          [
+            { text: "Cancelar", style: "cancel" },
+            { text: "Excluir", onPress: () => removeItem(id) },
+          ],
+          { cancelable: true }
+        );
+        return item;
+      }
+      return { ...item, quantity: newQuantity };
+    }
+    return item;
+  });
+  setItems(updatedItems);
+  storeItems(updatedItems); // Atualiza o armazenamento
+};
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
