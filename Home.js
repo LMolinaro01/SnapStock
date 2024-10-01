@@ -11,10 +11,8 @@ import {
   StyleSheet,
   Alert,
   ToastAndroid,
-  PermissionsAndroid,
-  Platform,
 } from "react-native";
-import { launchCamera } from "react-native-image-picker";
+import { launchCameraAsync, requestCameraPermissionsAsync } from 'expo-image-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Função para armazenar os itens no AsyncStorage
@@ -117,25 +115,8 @@ const HomeScreen = ({ navigation }) => {
 
   // Função para verificar permissão de câmera
   const requestCameraPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: "Permissão para acessar a câmera",
-            message: "O app precisa de acesso à câmera para tirar fotos",
-            buttonNeutral: "Pergunte depois",
-            buttonNegative: "Cancelar",
-            buttonPositive: "OK"
-          }
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        return false;
-      }
-    }
-    return true; // iOS não requer permissões explícitas
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    return status === 'granted';
   };
 
   // Função para tirar foto
@@ -143,11 +124,15 @@ const HomeScreen = ({ navigation }) => {
     const hasPermission = await requestCameraPermission();
     if (!hasPermission) return;
 
-    launchCamera({}, (response) => {
-      if (response.assets) {
-        setNewItem({ ...newItem, image: response.assets[0].uri });
-      }
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
+
+    if (!result.cancelled) {
+      setNewItem({ ...newItem, image: result.uri });
+    }
   };
 
   // Função para gerenciar mudanças nos inputs
@@ -225,6 +210,10 @@ const HomeScreen = ({ navigation }) => {
             />
             <View>
               <Button title="Tirar Foto" onPress={handleTakePhoto} />
+              {/* Adicionar preview da imagem no modal */}
+              {newItem.image && (
+                <Image source={{ uri: newItem.image }} style={styles.previewImage} />
+              )}
               <Button
                 title={editingItem ? "Salvar Alterações" : "Adicionar Item"}
                 onPress={addItem}
@@ -260,6 +249,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 10,
   },
+  previewImage: {
+    width: 100,
+    height: 100,
+    marginVertical: 10,
+    borderRadius: 8,
+  },
   placeholderImage: {
     width: 50,
     height: 50,
@@ -284,18 +279,17 @@ const styles = StyleSheet.create({
   },
   itemQuantity: {
     marginHorizontal: 10,
-    fontSize: 16,
   },
   addButton: {
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
+    backgroundColor: '#007bff',
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#007BFF',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
   },
   addButtonText: {
     fontSize: 30,
@@ -308,18 +302,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
+    width: 300,
     padding: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
-    elevation: 10,
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { height: 0, width: 0 },
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
+    width: '100%',
     padding: 10,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
   },
 });
 
