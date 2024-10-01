@@ -135,6 +135,14 @@ const handleTakePhoto = async () => {
   });
 };
 
+const handleInputChange = (field, value) => {
+  if (editingItem) {
+    setEditingItem({ ...editingItem, [field]: value });
+  } else {
+    setNewItem({ ...newItem, [field]: value });
+  }
+};
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
