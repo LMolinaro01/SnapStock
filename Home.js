@@ -34,7 +34,7 @@ const retrieveItems = async () => {
   }
 };
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
   const [items, setItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -46,6 +46,7 @@ const HomeScreen = ({ navigation }) => {
   });
 
   const [editingItem, setEditingItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null); // Para armazenar o item selecionado
 
   // Carrega os itens salvos ao inicializar o componente
   useEffect(() => {
@@ -108,14 +109,20 @@ const HomeScreen = ({ navigation }) => {
     });
   };
 
+  // Função para abrir os detalhes do item
+  const openDetails = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true); // Abre a modal de detalhes do item
+  };
+
+  // Função para fechar a modal de detalhes
+  const closeDetails = () => {
+    setSelectedItem(null);
+    setModalVisible(false);
+  };
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => {
-        setEditingItem(item);
-        setModalVisible(true);
-      }}
-    >
+    <View style={styles.itemContainer}>
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.itemImage} />
       ) : (
@@ -123,14 +130,28 @@ const HomeScreen = ({ navigation }) => {
       )}
 
       <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.name}</Text>
+        {/* Abre a modal de detalhes ao clicar no item */}
+        <TouchableOpacity onPress={() => openDetails(item)}>
+          <Text style={styles.itemName}>{item.name}</Text>
+        </TouchableOpacity>
+
         <View style={styles.quantityContainer}>
           <Button title="-" onPress={() => updateQuantity(item.id, -1)} />
           <Text style={styles.itemQuantity}>{item.quantity}</Text>
           <Button title="+" onPress={() => updateQuantity(item.id, 1)} />
         </View>
       </View>
-    </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+          setEditingItem(item);
+          setModalVisible(true);
+        }}
+        style={styles.editIconContainer}
+      >
+        <Text>🖉</Text> 
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -140,6 +161,7 @@ const HomeScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
+
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => {
@@ -150,7 +172,21 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+      {/* Modal para exibir os detalhes do item */}
+      {selectedItem && (
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Image source={{ uri: selectedItem.image }} style={styles.detailImage} />
+              <Text style={styles.itemName}>{selectedItem.name}</Text>
+              <Text style={styles.itemDescription}>{selectedItem.description}</Text>
+              <Button title="Fechar" onPress={closeDetails} />
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      <Modal visible={modalVisible && !selectedItem} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TextInput
@@ -244,6 +280,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
+  itemDescription: {
+    fontSize: 14,
+    marginTop: 10,
+  },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -287,6 +327,12 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     marginBottom: 10,
+  },
+  detailImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 20,
   },
 });
 
