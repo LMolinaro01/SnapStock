@@ -119,10 +119,6 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -133,74 +129,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginVertical: 10,
   },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-  },
-  itemInfo: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  itemName: {
-    fontSize: 16,
-  },
-  itemImage: {
-    width: 50,
-    height: 50,
-  },
-  quantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  itemQuantity: {
-    marginHorizontal: 10,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 30,
-    right: 30,
-    backgroundColor: "#007BFF",
-    borderRadius: 50,
-    width: 60,
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 30,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-  },
-  placeholderImage: {
-    width: 50,
-    height: 50,
-    backgroundColor: "#ccc",
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-    lineHeight: 50,
-    color: "#777",
-},
+  
   detailImage: {
     width: "100%",
     height: 200,
     borderRadius: 10,
   },
-  
 });
 
 export default App;
