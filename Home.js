@@ -122,7 +122,7 @@ const HomeScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+    <TouchableOpacity onPress={() => openDetails(item)} style={styles.itemContainer}>
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.itemImage} />
       ) : (
@@ -130,11 +130,7 @@ const HomeScreen = () => {
       )}
 
       <View style={styles.itemInfo}>
-        {/* Abre a modal de detalhes ao clicar no item */}
-        <TouchableOpacity onPress={() => openDetails(item)}>
-          <Text style={styles.itemName}>{item.name}</Text>
-        </TouchableOpacity>
-
+        <Text style={styles.itemName}>{item.name}</Text>
         <View style={styles.quantityContainer}>
           <Button title="-" onPress={() => updateQuantity(item.id, -1)} />
           <Text style={styles.itemQuantity}>{item.quantity}</Text>
@@ -151,7 +147,7 @@ const HomeScreen = () => {
       >
         <Text>🖉</Text> 
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -180,6 +176,8 @@ const HomeScreen = () => {
               <Image source={{ uri: selectedItem.image }} style={styles.detailImage} />
               <Text style={styles.itemName}>{selectedItem.name}</Text>
               <Text style={styles.itemDescription}>{selectedItem.description}</Text>
+              <Text style={styles.itemQuantity}>Quantidade: {selectedItem.quantity}</Text>
+              {selectedItem.link && <Text style={styles.itemLink}>Link: {selectedItem.link}</Text>}
               <Button title="Fechar" onPress={closeDetails} />
             </View>
           </View>
