@@ -145,33 +145,41 @@ const Registrar = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
-    if (username && password) {
-      try {
-        // Salva o novo usuário usando o AsyncStorage
-        const newUser = { username, password };
-        const storedUsers = await AsyncStorage.getItem("users");
-        let users = storedUsers ? JSON.parse(storedUsers) : [];
+  if (username && password) {
+    try {
+      // Criptografa a senha antes de salvar
+      const hashedPassword = hashPassword(password);
 
-        // Verifica se o usuário já existe
-        const userExists = users.find((user) => user.username === username);
-        if (userExists) {
-          alert("Usuário já existe.");
-        } else {
-          // Adiciona o novo usuário ao AsyncStorage
-          users.push(newUser);
-          await AsyncStorage.setItem("users", JSON.stringify(users));
-          alert("Usuário registrado com sucesso!");
+      // Recupera os usuários armazenados
+      const storedUsers = await AsyncStorage.getItem("users");
+      let users = storedUsers ? JSON.parse(storedUsers) : [];
 
+      // Verifica se o usuário já existe
+      const userExists = users.find((user) => user.username === username);
+      if (userExists) {
+        alert("Usuário já existe.");
+      } else {
+        // Adiciona o novo usuário com a senha criptografada ao AsyncStorage
+        users.push({ username, password: hashedPassword });
+        
+        // Certifica-se de que os dados são salvos antes de continuar
+        await AsyncStorage.setItem("users", JSON.stringify(users));
+        alert("Usuário registrado com sucesso!");
+
+        // Aguarda um pequeno atraso para garantir que os dados foram salvos corretamente
+        setTimeout(() => {
           // Leva o usuário para a tela de login
           navigation.navigate("Login");
-        }
-      } catch (error) {
-        alert("Erro ao registrar usuário: " + error);
+        }, 500);
       }
-    } else {
-      alert("Preencha todos os campos.");
+    } catch (error) {
+      alert("Erro ao registrar usuário: " + error);
     }
+  } else {
+    alert("Preencha todos os campos.");
+  }
   };
+
 
   return (
     <View style={{ padding: 20 }}>
