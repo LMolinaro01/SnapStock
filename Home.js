@@ -11,7 +11,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { launchCamera } from "react-native-image-picker";
+//import { launchCamera } from "react-native-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Função para armazenar os itens no AsyncStorage

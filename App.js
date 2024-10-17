@@ -14,6 +14,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import HomeScreen from "./Home";
+import ItemDetailsScreen from './ItemDetailsScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -185,7 +186,7 @@ const App = () => {
         <Drawer.Screen name="Início" component={HomeScreen} />
         <Drawer.Screen name="Config" component={Config} />
         <Drawer.Screen name="Exibir" component={Exibir} />
-        <Drawer.Screen name="Fotos" component={Fotos} />
+        <Drawer.Screen name="Fotos" component={ItemDetailsScreen} />
       </Drawer.Navigator>
     </NavigationContainer>
   ) : (
