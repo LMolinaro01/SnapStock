@@ -201,10 +201,7 @@ const Registrar = ({ navigation }) => {
 };
 
 
-const Perfil = () => <View><Text>Perfil</Text></View>;
 const Config = () => <Text>Configurações</Text>;
-const Exibir = () => <Text>Exibir conteúdo</Text>;
-const Fotos = () => <Text>Galeria de Fotos</Text>;
 
 const App = () => {
   const [EstaLogado, setLogado] = useState(false);
@@ -219,9 +216,8 @@ const App = () => {
           },
         }}>
         <Drawer.Screen name="Início" component={HomeScreen} />
-        <Drawer.Screen name="Config" component={Config} />
-        <Drawer.Screen name="Exibir" component={Exibir} />
         <Drawer.Screen name="Fotos" component={ItemDetailsScreen} />
+        <Drawer.Screen name="Configurações" component={Config} />
       </Drawer.Navigator>
     </NavigationContainer>
   ) : (
