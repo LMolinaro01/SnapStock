@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CryptoJS from "crypto-js";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -14,6 +17,61 @@ import HomeScreen from "./Home";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
+
+// Função para criptografar a senha
+const hashPassword = (password) => {
+  return CryptoJS.SHA256(password).toString();
+};
+
+// Função para salvar o usuário
+const storeUser = async (username, password) => {
+  try {
+    // Criptografa a senha
+    const hashedPassword = hashPassword(password);
+
+    // Recupera os usuários já armazenados
+    const usersJSON = await AsyncStorage.getItem("users");
+    let users = usersJSON ? JSON.parse(usersJSON) : [];
+
+    // Verifica se o usuário já existe
+    const userExists = users.some((user) => user.username === username);
+
+    if (userExists) {
+      Alert.alert("Erro", "Usuário já registrado.");
+    } else {
+      // Adiciona o novo usuário
+      users.push({ username, password: hashedPassword });
+      await AsyncStorage.setItem("users", JSON.stringify(users));
+      Alert.alert("Sucesso", "Usuário registrado com sucesso.");
+    }
+  } catch (error) {
+    Alert.alert("Erro", "Falha ao salvar usuário.");
+  }
+};
+
+// Função para verificar o login
+const handleLogin = async (username, password, setLogado) => {
+  try {
+    const hashedPassword = hashPassword(password);
+
+    const usersJSON = await AsyncStorage.getItem("users");
+    const users = usersJSON ? JSON.parse(usersJSON) : [];
+
+    // Verifica se as credenciais estão corretas
+    const user = users.find(
+      (user) => user.username === username && user.password === hashedPassword
+    );
+
+    if (user) {
+      setLogado(true);
+      Alert.alert("Sucesso", "Login realizado com sucesso.");
+    } else {
+      Alert.alert("Erro", "Credenciais incorretas.");
+    }
+  } catch (error) {
+    Alert.alert("Erro", "Falha ao processar login.");
+  }
+};
 
 const PreLogin = ({ navigation }) => {
   return (
@@ -42,13 +100,7 @@ const PreLogin = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 20,
-        }}
-      >
+      <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
         <Text>© Leonardo Molinaro</Text>
       </View>
     </View>
@@ -58,14 +110,6 @@ const PreLogin = ({ navigation }) => {
 const FormularioLogin = ({ route }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleLogin = () => {
-    if (username === "admin" && password === "123") {
-      route.params.funcLogar(true);
-    } else {
-      alert("Credenciais incorretas");
-    }
-  };
 
   return (
     <View style={{ padding: 20 }}>
@@ -86,7 +130,7 @@ const FormularioLogin = ({ route }) => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.loginButton]}
-          onPress={handleLogin}
+          onPress={() => handleLogin(username, password, route.params.funcLogar)}
         >
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
@@ -95,21 +139,38 @@ const FormularioLogin = ({ route }) => {
   );
 };
 
-const DetalhesItem = ({ route }) => {
-  const { item } = route.params;
+const Registrar = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Image source={{ uri: item.image }} style={styles.detailImage} />
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginVertical: 10 }}>
-        {item.name}
-      </Text>
-      <Text style={{ fontSize: 16 }}>{item.description}</Text>
+    <View style={{ padding: 20 }}>
+      <Text>Nome de Usuário</Text>
+      <TextInput
+        value={username}
+        onChangeText={setUsername}
+        style={styles.input}
+      />
+      <Text>Senha</Text>
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.registerButton]}
+          onPress={() => storeUser(username, password)}
+        >
+          <Text style={styles.buttonText}>Registrar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-const Registrar = () => <Text>Registrar</Text>;
 const Perfil = () => <View><Text>Perfil</Text></View>;
 const Config = () => <Text>Configurações</Text>;
 const Exibir = () => <Text>Exibir conteúdo</Text>;
@@ -137,7 +198,6 @@ const App = () => {
           initialParams={{ funcLogar: setLogado }}
         />
         <Stack.Screen name="Registrar" component={Registrar} />
-        <Stack.Screen name="DetalhesItem" component={DetalhesItem} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -160,19 +220,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   registerButton: {
-    backgroundColor: "#ffe699", // Verde
+    backgroundColor: "#ffe699", 
   },
   loginButton: {
-    backgroundColor: "#ffe699", // Azul
+    backgroundColor: "#ffe699", 
   },
   buttonText: {
-    color: "#black", // Texto branco
+    color: "#000", 
     fontWeight: "bold",
-  },
-  detailImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 10,
   },
 });
 
