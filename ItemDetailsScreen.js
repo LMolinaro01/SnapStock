@@ -17,12 +17,17 @@ const ItemDetailsScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    const loadItems = async () => {
-      const storedItems = await retrieveItems();
-      setItems(storedItems);
-    };
-    loadItems();
-  }, []);
+  const loadItems = async () => {
+    const storedItems = await retrieveItems();
+    setItems(storedItems);
+  };
+
+  loadItems();
+
+  const unsubscribe = navigation.addListener('focus', loadItems);
+
+  return unsubscribe;
+}, [navigation]);
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -110,5 +115,6 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
+
 
 export default ItemDetailsScreen;
