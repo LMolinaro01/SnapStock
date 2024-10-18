@@ -209,7 +209,41 @@ const Registrar = ({ navigation }) => {
 };
 
 
-const Config = () => <Text>Configurações</Text>;
+
+const Config = () => {
+  const clearUsers = async () => {
+    Alert.alert(
+      "Excluir Todos os Usuários",
+      "Você tem certeza que deseja apagar todos os usuários registrados?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Excluir",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("users");
+              Alert.alert("Sucesso", "Todos os usuários foram apagados.");
+            } catch (error) {
+              Alert.alert("Erro", "Falha ao apagar usuários.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  return (
+    <View style={styles.configContainer}>
+      <Text style={styles.configTitle}>Configurações</Text>
+      <TouchableOpacity style={styles.button} onPress={clearUsers}>
+        <Text style={styles.buttonText}>Apagar Todos os Usuários</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const App = () => {
   const [EstaLogado, setLogado] = useState(false);
@@ -269,6 +303,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#000", 
     fontWeight: "bold",
+  },
+  configContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  configTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
 });
 
