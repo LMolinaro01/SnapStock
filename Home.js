@@ -11,7 +11,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { launchCamera } from "react-native-image-picker";
+//import { launchCamera } from "react-native-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Função para armazenar os itens no AsyncStorage
@@ -34,7 +34,7 @@ const retrieveItems = async () => {
   }
 };
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -132,9 +132,17 @@ const HomeScreen = () => {
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.name}</Text>
         <View style={styles.quantityContainer}>
-          <Button title="-" onPress={() => updateQuantity(item.id, -1)} />
+          <Button
+            color="#ffe699" // Cor dos botões
+            title="-"
+            onPress={() => updateQuantity(item.id, -1)}
+          />
           <Text style={styles.itemQuantity}>{item.quantity}</Text>
-          <Button title="+" onPress={() => updateQuantity(item.id, 1)} />
+          <Button
+            color="#ffe699" // Cor dos botões
+            title="+"
+            onPress={() => updateQuantity(item.id, 1)}
+          />
         </View>
       </View>
 
@@ -145,7 +153,7 @@ const HomeScreen = () => {
         }}
         style={styles.editIconContainer}
       >
-        <Text>🖉</Text> 
+        <Text style={styles.editar}>Editar</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -178,7 +186,7 @@ const HomeScreen = () => {
               <Text style={styles.itemDescription}>{selectedItem.description}</Text>
               <Text style={styles.itemQuantity}>Quantidade: {selectedItem.quantity}</Text>
               {selectedItem.link && <Text style={styles.itemLink}>Link: {selectedItem.link}</Text>}
-              <Button title="Fechar" onPress={closeDetails} />
+              <Button title="Fechar" onPress={closeDetails} color="#ffe699" />
             </View>
           </View>
         </Modal>
@@ -224,12 +232,13 @@ const HomeScreen = () => {
               }}
             />
             <View>
-              <Button title="Tirar Foto" onPress={handleTakePhoto} />
+              <Button title="Tirar Foto" onPress={handleTakePhoto} color="#ffe699" />
               <Button
                 title={editingItem ? "Salvar Alterações" : "Adicionar Item"}
                 onPress={addItem}
+                color="#ffe699" 
               />
-              <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+              <Button title="Cancelar" onPress={() => setModalVisible(false)} color="#ffe699" />
             </View>
           </View>
         </View>
@@ -254,83 +263,94 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
   },
+  editar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+    marginBottom: 5,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
   itemImage: {
     width: 50,
     height: 50,
-    borderRadius: 8,
-    marginRight: 10,
+    borderRadius: 25,
   },
   placeholderImage: {
     width: 50,
     height: 50,
-    borderRadius: 8,
-    marginRight: 10,
-    backgroundColor: '#ddd',
+    backgroundColor: '#ccc',
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
     textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#999',
+    lineHeight: 50,
   },
   itemInfo: {
     flex: 1,
+    marginLeft: 10,
   },
   itemName: {
-    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 4,
+    padding: 4,
   },
-  itemDescription: {
+  itemQuantity: {
     fontSize: 14,
-    marginTop: 10,
+    fontWeight: 'bold',
+    padding: 8,
+    
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  itemQuantity: {
-    marginHorizontal: 10,
-    fontSize: 16,
-  },
   addButton: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
+    bottom: 30,
+    right: 30,
     width: 60,
     height: 60,
+    backgroundColor: '#ffe699',
     borderRadius: 30,
-    backgroundColor: '#007BFF',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
   },
   addButtonText: {
     fontSize: 30,
-    color: '#fff',
+    color: 'black',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 300,
+    width: '80%',
+    backgroundColor: 'white',
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 10,
-    alignItems: 'center',
-  },
-  input: {
-    width: '100%',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 10,
   },
   detailImage: {
-    width: "100%",
+    width: '100%',
     height: 200,
     borderRadius: 10,
-    marginBottom: 20,
+  },
+  itemDescription: {
+    marginVertical: 10,
+  },
+  itemLink: {
+    color: 'blue',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   },
 });
 

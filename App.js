@@ -3,18 +3,76 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   Image,
   StyleSheet,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CryptoJS from "crypto-js";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import HomeScreen from "./Home";
+import ItemDetailsScreen from './ItemDetailsScreen';
 
+const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
-const Stack = createStackNavigator(); 
-const Drawer = createDrawerNavigator(); 
+// Função para criptografar a senha
+const hashPassword = (password) => {
+  return CryptoJS.SHA256(password).toString();
+};
+
+// Função para salvar o usuário
+const storeUser = async (username, password) => {
+  try {
+    // Criptografa a senha
+    const hashedPassword = hashPassword(password);
+
+    // Recupera os usuários já armazenados
+    const usersJSON = await AsyncStorage.getItem("users");
+    let users = usersJSON ? JSON.parse(usersJSON) : [];
+
+    // Verifica se o usuário já existe
+    const userExists = users.some((user) => user.username === username);
+
+    if (userExists) {
+      Alert.alert("Erro", "Usuário já registrado.");
+    } else {
+      // Adiciona o novo usuário
+      users.push({ username, password: hashedPassword });
+      await AsyncStorage.setItem("users", JSON.stringify(users));
+      Alert.alert("Sucesso", "Usuário registrado com sucesso.");
+    }
+  } catch (error) {
+    Alert.alert("Erro", "Falha ao salvar usuário.");
+  }
+};
+
+// Função para verificar o login
+const handleLogin = async (username, password, setLogado) => {
+  try {
+    const hashedPassword = hashPassword(password);
+
+    const usersJSON = await AsyncStorage.getItem("users");
+    const users = usersJSON ? JSON.parse(usersJSON) : [];
+
+    // Verifica se as credenciais estão corretas
+    const user = users.find(
+      (user) => user.username === username && user.password === hashedPassword
+    );
+
+    if (user) {
+      setLogado(true);
+      Alert.alert("Sucesso", "Login realizado com sucesso.");
+    } else {
+      Alert.alert("Erro", "Credenciais incorretas.");
+    }
+  } catch (error) {
+    Alert.alert("Erro", "Falha ao processar login.");
+  }
+};
 
 const PreLogin = ({ navigation }) => {
   return (
@@ -22,27 +80,28 @@ const PreLogin = ({ navigation }) => {
       <View style={{ justifyContent: "center", alignItems: "center" }}>
         <Image
           source={require("logo.png")}
-          style={{ width: 140, height: 110, marginBottom: 20 }}
+          style={{ width: 165, height: 140, marginBottom: 20 }}
         />
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button
+        <TouchableOpacity
+          style={[styles.button, styles.registerButton]}
           onPress={() => navigation.navigate("Registrar")}
-          title="Registrar"
-        />
+        >
+          <Text style={styles.buttonText}>Registrar</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => navigation.navigate("Login")} title="Logar" />
+        <TouchableOpacity
+          style={[styles.button, styles.loginButton]}
+          onPress={() => navigation.navigate("Login")}
+        >
+          <Text style={styles.buttonText}>Logar</Text>
+        </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 20,
-        }}
-      >
+      <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
         <Text>© Leonardo Molinaro</Text>
       </View>
     </View>
@@ -52,14 +111,6 @@ const PreLogin = ({ navigation }) => {
 const FormularioLogin = ({ route }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleLogin = () => {
-    if (username === "admin" && password === "123") {
-      route.params.funcLogar(true);
-    } else {
-      alert("Credenciais incorretas");
-    }
-  };
 
   return (
     <View style={{ padding: 20 }}>
@@ -78,29 +129,137 @@ const FormularioLogin = ({ route }) => {
       />
 
       <View style={styles.buttonContainer}>
-        <Button onPress={handleLogin} title="Entrar" />
+        <TouchableOpacity
+          style={[styles.button, styles.loginButton]}
+          onPress={() => handleLogin(username, password, route.params.funcLogar)}
+        >
+          <Text style={styles.buttonText}>Entrar</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const Registrar = () => <Text>Registrar</Text>;
-const Perfil = () => <View><Text>Perfil</Text></View>;
-const Config = () => <Text>Configurações</Text>;
-const Exibir = () => <Text>Exibir conteúdo</Text>;
-const Fotos = () => <Text>Galeria de Fotos</Text>;
+const Registrar = ({ navigation }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
+  const handleRegister = async () => {
+  if (username && password) {
+    try {
+      // Criptografa a senha antes de salvar
+      const hashedPassword = hashPassword(password);
+
+      // Recupera os usuários armazenados
+      const storedUsers = await AsyncStorage.getItem("users");
+      let users = storedUsers ? JSON.parse(storedUsers) : [];
+
+      // Verifica se o usuário já existe
+      const userExists = users.find((user) => user.username === username);
+      if (userExists) {
+        alert("Usuário já existe.");
+      } else {
+        // Adiciona o novo usuário com a senha criptografada ao AsyncStorage
+        users.push({ username, password: hashedPassword });
+        
+        // Certifica-se de que os dados são salvos antes de continuar
+        await AsyncStorage.setItem("users", JSON.stringify(users));
+        alert("Usuário registrado com sucesso!");
+
+        // Aguarda um pequeno atraso para garantir que os dados foram salvos corretamente
+        setTimeout(() => {
+          // Leva o usuário para a tela de login
+          navigation.navigate("Login");
+        }, 500);
+      }
+    } catch (error) {
+      alert("Erro ao registrar usuário: " + error);
+    }
+  } else {
+    alert("Preencha todos os campos.");
+  }
+  };
+
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Text>Nome de Usuário</Text>
+      <TextInput
+        value={username}
+        onChangeText={setUsername}
+        style={styles.input}
+      />
+      <Text>Senha</Text>
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.registerButton]}
+          onPress={handleRegister}
+        >
+          <Text style={styles.buttonText}>Registrar</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+
+
+const Config = () => {
+  const clearUsers = async () => {
+    Alert.alert(
+      "Excluir Todos os Usuários",
+      "Você tem certeza que deseja apagar todos os usuários registrados?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Excluir",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("users");
+              Alert.alert("Sucesso", "Todos os usuários foram apagados.");
+            } catch (error) {
+              Alert.alert("Erro", "Falha ao apagar usuários.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  return (
+    <View style={styles.configContainer}>
+      <Text style={styles.configTitle}>Configurações</Text>
+      <TouchableOpacity style={styles.button} onPress={clearUsers}>
+        <Text style={styles.buttonText}>Apagar Todos os Usuários</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const App = () => {
   const [EstaLogado, setLogado] = useState(false);
 
   return EstaLogado ? (
     <NavigationContainer>
-      <Drawer.Navigator>
+      <Drawer.Navigator screenOptions={{
+          drawerActiveTintColor: "#ffe699", 
+          drawerInactiveTintColor: "#000", 
+          drawerStyle: {
+            backgroundColor: "#fff", 
+          },
+        }}>
         <Drawer.Screen name="Início" component={HomeScreen} />
-        <Drawer.Screen name="Config" component={Config} />
-        <Drawer.Screen name="Exibir" component={Exibir} />
-        <Drawer.Screen name="Fotos" component={Fotos} />
+        <Drawer.Screen name="Fotos" component={ItemDetailsScreen} />
+        <Drawer.Screen name="Configurações" component={Config} />
       </Drawer.Navigator>
     </NavigationContainer>
   ) : (
@@ -116,13 +275,10 @@ const App = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
+
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -133,74 +289,32 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginVertical: 10,
   },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-  },
-  itemInfo: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  itemName: {
-    fontSize: 16,
-  },
-  itemImage: {
-    width: 50,
-    height: 50,
-  },
-  quantityContainer: {
-    flexDirection: "row",
+  button: {
+    padding: 15,
+    borderRadius: 5,
     alignItems: "center",
   },
-  itemQuantity: {
-    marginHorizontal: 10,
+  registerButton: {
+    backgroundColor: "#ffe699", 
   },
-  addButton: {
-    position: "absolute",
-    bottom: 30,
-    right: 30,
-    backgroundColor: "#007BFF",
-    borderRadius: 50,
-    width: 60,
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
+  loginButton: {
+    backgroundColor: "#ffe699", 
   },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 30,
+  buttonText: {
+    color: "#000", 
+    fontWeight: "bold",
   },
-  modalContainer: {
+  configContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
     padding: 20,
   },
-  placeholderImage: {
-    width: 50,
-    height: 50,
-    backgroundColor: "#ccc",
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-    lineHeight: 50,
-    color: "#777",
-},
-  detailImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 10,
+  configTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
-  
 });
 
 export default App;
