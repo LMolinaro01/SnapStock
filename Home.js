@@ -1,7 +1,7 @@
 //quando eu tento editar uma imagem nada acontece, resolver isso
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,26 +16,26 @@ import {
   Platform,
   PermissionsAndroid,
   Linking,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 
 // Função para armazenar os itens no AsyncStorage
 const storeItems = async (items) => {
   try {
-    await AsyncStorage.setItem('items', JSON.stringify(items));
+    await AsyncStorage.setItem("items", JSON.stringify(items));
   } catch (error) {
-    alert('Erro ao salvar os dados: ' + error);
+    alert("Erro ao salvar os dados: " + error);
   }
 };
 
 // Função para recuperar os itens do AsyncStorage
 const retrieveItems = async () => {
   try {
-    const storedItems = await AsyncStorage.getItem('items');
+    const storedItems = await AsyncStorage.getItem("items");
     return storedItems !== null ? JSON.parse(storedItems) : [];
   } catch (error) {
-    alert('Erro ao recuperar os dados: ' + error);
+    alert("Erro ao recuperar os dados: " + error);
     return [];
   }
 };
@@ -44,16 +44,16 @@ const HomeScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newItem, setNewItem] = useState({
-    name: '',
+    name: "",
     quantity: 1,
-    description: '',
-    link: '',
+    description: "",
+    link: "",
     image: null,
   });
 
   // Função para solicitar permissão de acesso à galeria no Android
   const requestGalleryPermission = async () => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       const granted = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
       );
@@ -62,11 +62,12 @@ const HomeScreen = ({ navigation }) => {
         const result = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
           {
-            title: 'Permissão de Galeria',
-            message: 'O app precisa de acesso à galeria para selecionar imagens.',
-            buttonNeutral: 'Perguntar depois',
-            buttonNegative: 'Cancelar',
-            buttonPositive: 'OK',
+            title: "Permissão de Galeria",
+            message:
+              "O app precisa de acesso à galeria para selecionar imagens.",
+            buttonNeutral: "Perguntar depois",
+            buttonNegative: "Cancelar",
+            buttonPositive: "OK",
           }
         );
 
@@ -74,11 +75,14 @@ const HomeScreen = ({ navigation }) => {
           return true;
         } else if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
           Alert.alert(
-            'Permissão Necessária',
-            'Você precisa habilitar a permissão de galeria nas configurações.',
+            "Permissão Necessária",
+            "Você precisa habilitar a permissão de galeria nas configurações.",
             [
-              { text: 'Cancelar', style: 'cancel' },
-              { text: 'Abrir Configurações', onPress: () => Linking.openSettings() },
+              { text: "Cancelar", style: "cancel" },
+              {
+                text: "Abrir Configurações",
+                onPress: () => Linking.openSettings(),
+              },
             ],
             { cancelable: true }
           );
@@ -92,26 +96,26 @@ const HomeScreen = ({ navigation }) => {
 
   // Função para abrir a galeria de imagens
   const selectImage = async () => {
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
-  if (status !== 'granted') {
-    alert('Desculpe, precisamos da permissão para acessar a galeria.');
-    return;
-  }
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    quality: 1,
-  });
+    if (status !== "granted") {
+      alert("Desculpe, precisamos da permissão para acessar a galeria.");
+      return;
+    }
 
-  if (!result.canceled) {
-    const uri = result.assets[0].uri;
-    setNewItem((prevItem) => ({ ...prevItem, image: uri }));
-  } else {
-    console.log('Seleção de imagem cancelada pelo usuário.');
-  }
-};
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setNewItem((prevItem) => ({ ...prevItem, image: uri }));
+    } else {
+      console.log("Seleção de imagem cancelada pelo usuário.");
+    }
+  };
 
   const [editingItem, setEditingItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null); // Para armazenar o item selecionado
@@ -135,10 +139,10 @@ const HomeScreen = ({ navigation }) => {
     storeItems(updatedItems); // Armazena os itens no AsyncStorage
 
     setNewItem({
-      name: '',
+      name: "",
       quantity: 1,
-      description: '',
-      link: '',
+      description: "",
+      link: "",
       image: null,
     });
     setModalVisible(false);
@@ -150,12 +154,12 @@ const HomeScreen = ({ navigation }) => {
         const newQuantity = item.quantity + amount;
         if (newQuantity <= 0) {
           Alert.alert(
-            'Excluir Item',
-            'Você realmente deseja excluir este item?',
+            "Excluir Item",
+            "Você realmente deseja excluir este item?",
             [
-              { text: 'Cancelar', style: 'cancel' },
+              { text: "Cancelar", style: "cancel" },
               {
-                text: 'Excluir',
+                text: "Excluir",
                 onPress: () => {
                   const filteredItems = items.filter((it) => it.id !== id);
                   setItems(filteredItems);
@@ -194,7 +198,8 @@ const HomeScreen = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => openDetails(item)}
-      style={styles.itemContainer}>
+      style={styles.itemContainer}
+    >
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.itemImage} />
       ) : (
@@ -223,7 +228,8 @@ const HomeScreen = ({ navigation }) => {
           setEditingItem(item);
           setModalVisible(true);
         }}
-        style={styles.editIconContainer}>
+        style={styles.editIconContainer}
+      >
         <Text style={styles.editar}>Editar</Text>
       </TouchableOpacity>
     </TouchableOpacity>
@@ -242,7 +248,8 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => {
           setEditingItem(null);
           setModalVisible(true);
-        }}>
+        }}
+      >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
@@ -259,12 +266,16 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.itemDescription}>
                 {selectedItem.description}
               </Text>
+              {selectedItem.link && (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(selectedItem.link)}
+                >
+                  <Text style={styles.itemLink}>{selectedItem.link}</Text>
+                </TouchableOpacity>
+              )}
               <Text style={styles.itemQuantity}>
                 Quantidade: {selectedItem.quantity}
               </Text>
-              {selectedItem.link && (
-                <Text style={styles.itemLink}>Link: {selectedItem.link}</Text>
-              )}
               <Button title="Fechar" onPress={closeDetails} color="#ffe699" />
             </View>
           </View>
@@ -274,7 +285,8 @@ const HomeScreen = ({ navigation }) => {
       <Modal
         visible={modalVisible && !selectedItem}
         animationType="slide"
-        transparent={true}>
+        transparent={true}
+      >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TextInput
@@ -315,7 +327,7 @@ const HomeScreen = ({ navigation }) => {
                 }
               }}
             />
-            
+
             <View>
               <Button
                 title="Escolher da Galeria"
@@ -324,7 +336,7 @@ const HomeScreen = ({ navigation }) => {
               />
 
               <Button
-                title={editingItem ? 'Salvar Alterações' : 'Adicionar Item'}
+                title={editingItem ? "Salvar Alterações" : "Adicionar Item"}
                 onPress={addItem}
                 color="#ffe699"
               />
@@ -345,27 +357,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     marginBottom: 10,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
   editar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 5,
     marginBottom: 5,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
   itemImage: {
     width: 50,
@@ -375,11 +387,11 @@ const styles = StyleSheet.create({
   placeholderImage: {
     width: 50,
     height: 50,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
     lineHeight: 50,
   },
   itemInfo: {
@@ -387,48 +399,48 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   itemName: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     padding: 4,
   },
   itemQuantity: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     padding: 8,
   },
   quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   addButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 30,
     right: 30,
     width: 60,
     height: 60,
-    backgroundColor: '#ffe699',
+    backgroundColor: "#ffe699",
     borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 5,
   },
   addButtonText: {
     fontSize: 30,
-    color: 'black',
+    color: "black",
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
+    width: "80%",
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
   },
   detailImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     borderRadius: 10,
   },
@@ -436,11 +448,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   itemLink: {
-    color: 'blue',
+    color: "blue",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
@@ -448,3 +460,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
