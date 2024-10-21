@@ -1,3 +1,6 @@
+//quando eu tento editar uma imagem nada acontece, resolver isso
+
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
