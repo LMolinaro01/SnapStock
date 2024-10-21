@@ -15,7 +15,7 @@ import {
   Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 // Função para armazenar os itens no AsyncStorage
 const storeItems = async (items) => {
@@ -89,31 +89,26 @@ const HomeScreen = ({ navigation }) => {
 
   // Função para abrir a galeria de imagens
   const selectImage = async () => {
-    const hasPermission = await requestGalleryPermission();
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+  if (status !== 'granted') {
+    alert('Desculpe, precisamos da permissão para acessar a galeria.');
+    return;
+  }
 
-    if (!hasPermission) {
-      alert('Permissão para acessar a galeria foi negada.');
-      return;
-    }
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    quality: 1,
+  });
 
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 1,
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log('Seleção de imagem cancelada pelo usuário.');
-        } else if (response.errorCode) {
-          console.error('Erro ao abrir a galeria: ', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          const uri = response.assets[0].uri;
-          console.log('Imagem selecionada: ', uri);
-          setNewItem((prevItem) => ({ ...prevItem, image: uri }));
-        }
-      }
-    );
-  };
+  if (!result.canceled) {
+    const uri = result.assets[0].uri;
+    setNewItem((prevItem) => ({ ...prevItem, image: uri }));
+  } else {
+    console.log('Seleção de imagem cancelada pelo usuário.');
+  }
+};
 
   const [editingItem, setEditingItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null); // Para armazenar o item selecionado
