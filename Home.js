@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,26 +10,29 @@ import {
   Modal,
   StyleSheet,
   Alert,
-} from "react-native";
-//import { launchCamera } from "react-native-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+  Platform,
+  PermissionsAndroid,
+  Linking,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 // Função para armazenar os itens no AsyncStorage
 const storeItems = async (items) => {
   try {
-    await AsyncStorage.setItem("items", JSON.stringify(items));
+    await AsyncStorage.setItem('items', JSON.stringify(items));
   } catch (error) {
-    alert("Erro ao salvar os dados: " + error);
+    alert('Erro ao salvar os dados: ' + error);
   }
 };
 
 // Função para recuperar os itens do AsyncStorage
 const retrieveItems = async () => {
   try {
-    const storedItems = await AsyncStorage.getItem("items");
+    const storedItems = await AsyncStorage.getItem('items');
     return storedItems !== null ? JSON.parse(storedItems) : [];
   } catch (error) {
-    alert("Erro ao recuperar os dados: " + error);
+    alert('Erro ao recuperar os dados: ' + error);
     return [];
   }
 };
@@ -38,12 +41,79 @@ const HomeScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newItem, setNewItem] = useState({
-    name: "",
+    name: '',
     quantity: 1,
-    description: "",
-    link: "",
+    description: '',
+    link: '',
     image: null,
   });
+
+  // Função para solicitar permissão de acesso à galeria no Android
+  const requestGalleryPermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+      );
+
+      if (!granted) {
+        const result = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title: 'Permissão de Galeria',
+            message: 'O app precisa de acesso à galeria para selecionar imagens.',
+            buttonNeutral: 'Perguntar depois',
+            buttonNegative: 'Cancelar',
+            buttonPositive: 'OK',
+          }
+        );
+
+        if (result === PermissionsAndroid.RESULTS.GRANTED) {
+          return true;
+        } else if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+          Alert.alert(
+            'Permissão Necessária',
+            'Você precisa habilitar a permissão de galeria nas configurações.',
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Abrir Configurações', onPress: () => Linking.openSettings() },
+            ],
+            { cancelable: true }
+          );
+        }
+        return false;
+      }
+      return true; // Permissão já concedida
+    }
+    return true; // iOS não requer essa permissão
+  };
+
+  // Função para abrir a galeria de imagens
+  const selectImage = async () => {
+    const hasPermission = await requestGalleryPermission();
+
+    if (!hasPermission) {
+      alert('Permissão para acessar a galeria foi negada.');
+      return;
+    }
+
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 1,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log('Seleção de imagem cancelada pelo usuário.');
+        } else if (response.errorCode) {
+          console.error('Erro ao abrir a galeria: ', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          const uri = response.assets[0].uri;
+          console.log('Imagem selecionada: ', uri);
+          setNewItem((prevItem) => ({ ...prevItem, image: uri }));
+        }
+      }
+    );
+  };
 
   const [editingItem, setEditingItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null); // Para armazenar o item selecionado
@@ -66,7 +136,13 @@ const HomeScreen = ({ navigation }) => {
     setItems(updatedItems);
     storeItems(updatedItems); // Armazena os itens no AsyncStorage
 
-    setNewItem({ name: "", quantity: 1, description: "", link: "", image: null });
+    setNewItem({
+      name: '',
+      quantity: 1,
+      description: '',
+      link: '',
+      image: null,
+    });
     setModalVisible(false);
   };
 
@@ -76,12 +152,12 @@ const HomeScreen = ({ navigation }) => {
         const newQuantity = item.quantity + amount;
         if (newQuantity <= 0) {
           Alert.alert(
-            "Excluir Item",
-            "Você realmente deseja excluir este item?",
+            'Excluir Item',
+            'Você realmente deseja excluir este item?',
             [
-              { text: "Cancelar", style: "cancel" },
+              { text: 'Cancelar', style: 'cancel' },
               {
-                text: "Excluir",
+                text: 'Excluir',
                 onPress: () => {
                   const filteredItems = items.filter((it) => it.id !== id);
                   setItems(filteredItems);
@@ -101,12 +177,8 @@ const HomeScreen = ({ navigation }) => {
     storeItems(updatedItems); // Atualiza o armazenamento
   };
 
-  const handleTakePhoto = () => {
-    launchCamera({}, (response) => {
-      if (response.assets) {
-        setNewItem({ ...newItem, image: response.assets[0].uri });
-      }
-    });
+  const handlePhotoTaken = (uri) => {
+    setNewItem({ ...newItem, image: uri });
   };
 
   // Função para abrir os detalhes do item
@@ -122,7 +194,9 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => openDetails(item)} style={styles.itemContainer}>
+    <TouchableOpacity
+      onPress={() => openDetails(item)}
+      style={styles.itemContainer}>
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.itemImage} />
       ) : (
@@ -151,8 +225,7 @@ const HomeScreen = ({ navigation }) => {
           setEditingItem(item);
           setModalVisible(true);
         }}
-        style={styles.editIconContainer}
-      >
+        style={styles.editIconContainer}>
         <Text style={styles.editar}>Editar</Text>
       </TouchableOpacity>
     </TouchableOpacity>
@@ -171,8 +244,7 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => {
           setEditingItem(null);
           setModalVisible(true);
-        }}
-      >
+        }}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
@@ -181,18 +253,30 @@ const HomeScreen = ({ navigation }) => {
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Image source={{ uri: selectedItem.image }} style={styles.detailImage} />
+              <Image
+                source={{ uri: selectedItem.image }}
+                style={styles.detailImage}
+              />
               <Text style={styles.itemName}>{selectedItem.name}</Text>
-              <Text style={styles.itemDescription}>{selectedItem.description}</Text>
-              <Text style={styles.itemQuantity}>Quantidade: {selectedItem.quantity}</Text>
-              {selectedItem.link && <Text style={styles.itemLink}>Link: {selectedItem.link}</Text>}
+              <Text style={styles.itemDescription}>
+                {selectedItem.description}
+              </Text>
+              <Text style={styles.itemQuantity}>
+                Quantidade: {selectedItem.quantity}
+              </Text>
+              {selectedItem.link && (
+                <Text style={styles.itemLink}>Link: {selectedItem.link}</Text>
+              )}
               <Button title="Fechar" onPress={closeDetails} color="#ffe699" />
             </View>
           </View>
         </Modal>
       )}
 
-      <Modal visible={modalVisible && !selectedItem} animationType="slide" transparent={true}>
+      <Modal
+        visible={modalVisible && !selectedItem}
+        animationType="slide"
+        transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TextInput
@@ -210,7 +294,9 @@ const HomeScreen = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="Descrição"
-              value={editingItem ? editingItem.description : newItem.description}
+              value={
+                editingItem ? editingItem.description : newItem.description
+              }
               onChangeText={(text) => {
                 if (editingItem) {
                   setEditingItem({ ...editingItem, description: text });
@@ -231,14 +317,24 @@ const HomeScreen = ({ navigation }) => {
                 }
               }}
             />
+            
             <View>
-              <Button title="Tirar Foto" onPress={handleTakePhoto} color="#ffe699" />
               <Button
-                title={editingItem ? "Salvar Alterações" : "Adicionar Item"}
-                onPress={addItem}
-                color="#ffe699" 
+                title="Escolher da Galeria"
+                onPress={selectImage}
+                color="#ffe699"
               />
-              <Button title="Cancelar" onPress={() => setModalVisible(false)} color="#ffe699" />
+
+              <Button
+                title={editingItem ? 'Salvar Alterações' : 'Adicionar Item'}
+                onPress={addItem}
+                color="#ffe699"
+              />
+              <Button
+                title="Cancelar"
+                onPress={() => setModalVisible(false)}
+                color="#ffe699"
+              />
             </View>
           </View>
         </View>
@@ -300,7 +396,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     padding: 8,
-    
   },
   quantityContainer: {
     flexDirection: 'row',
