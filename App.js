@@ -14,7 +14,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import HomeScreen from "./Home";
-import ItemDetailsScreen from './ItemDetailsScreen';
+import ItemDetailsScreen from "./ItemDetailsScreen";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -79,7 +79,7 @@ const PreLogin = ({ navigation }) => {
     <View>
       <View style={{ justifyContent: "center", alignItems: "center" }}>
         <Image
-          source={require("logo.png")}
+          //source={require("logo.png")}
           style={{ width: 165, height: 140, marginBottom: 20 }}
         />
       </View>
@@ -272,6 +272,7 @@ const App = () => {
           initialParams={{ funcLogar: setLogado }}
         />
         <Stack.Screen name="Registrar" component={Registrar} />
+        <Stack.Screen name="Home" component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
