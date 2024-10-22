@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Button } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Button,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Função para recuperar os itens do AsyncStorage
@@ -17,17 +25,17 @@ const ItemDetailsScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-  const loadItems = async () => {
-    const storedItems = await retrieveItems();
-    setItems(storedItems);
-  };
+    const loadItems = async () => {
+      const storedItems = await retrieveItems();
+      setItems(storedItems);
+    };
 
-  loadItems();
+    loadItems();
 
-  const unsubscribe = navigation.addListener('focus', loadItems);
+    const unsubscribe = navigation.addListener("focus", loadItems);
 
-  return unsubscribe;
-}, [navigation]);
+    return unsubscribe;
+  }, [navigation]);
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
@@ -40,7 +48,7 @@ const ItemDetailsScreen = ({ navigation }) => {
         <Text style={styles.itemName}>{item.name}</Text>
         <Text style={styles.itemDescription}>{item.description}</Text>
         <Text style={styles.itemQuantity}>Quantidade: {item.quantity}</Text>
-        {item.link && <Text style={styles.itemLink}>Link: {item.link}</Text>}
+        {item.link && <Text style={styles.itemLink}>{item.link}</Text>}
       </View>
     </View>
   );
@@ -53,7 +61,13 @@ const ItemDetailsScreen = ({ navigation }) => {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
       />
-      <Button title="Voltar" onPress={() => navigation.goBack()} color="#ffe699" />
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "#ffe699" }]}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.buttonText}>Fechar</Text>
+      </TouchableOpacity>{" "}
+
     </View>
   );
 };
@@ -61,60 +75,72 @@ const ItemDetailsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
   },
   listContent: {
     paddingBottom: 20,
   },
   itemContainer: {
-    flexDirection: 'column',
+    flexDirection: "column",
     padding: 20,
     marginBottom: 20,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 10,
     elevation: 3,
   },
   itemImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     borderRadius: 10,
     marginBottom: 10,
   },
+  buttonText: {
+    color: "black",
+    fontWeight: "bold",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
+  },
   placeholderImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
     lineHeight: 200,
   },
   itemInfo: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   itemName: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   itemDescription: {
     fontSize: 16,
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   itemQuantity: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   itemLink: {
     fontSize: 16,
-    color: 'blue',
-    textDecorationLine: 'underline',
+    color: "blue",
+    textDecorationLine: "underline",
+    textAlign: "center",
   },
 });
-
 
 export default ItemDetailsScreen;
