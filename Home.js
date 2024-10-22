@@ -91,6 +91,7 @@ const HomeScreen = ({ navigation }) => {
     return true; // iOS não requer essa permissão
   };
 
+
   // Função para abrir a galeria de imagens
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -332,7 +333,7 @@ const HomeScreen = ({ navigation }) => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Link (Opcional)"
+              placeholder="Link"
               value={editingItem ? editingItem.link : newItem.link}
               onChangeText={(text) => {
                 if (editingItem) {
