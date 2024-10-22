@@ -49,6 +49,7 @@ const handleLogin = async (username, password, setLogado) => {
   }
 };
 
+
 // Função para logout
 const logout = (setLogado) => {
   setLogado(false); // Apenas define o estado para não logado
@@ -162,10 +163,10 @@ const Registrar = ({ navigation }) => {
           }, 500);
         }
       } catch (error) {
-        alert("Erro ao registrar usuário: " + error);
+        Alert.alert("Atenção","Erro ao registrar usuário: " + error);
       }
     } else {
-      alert("Preencha todos os campos.");
+      Alert.alert("Atenção","Preencha todos os campos.");
     }
   };
 
@@ -208,6 +209,24 @@ const Config = ({ setLogado }) => {
         },
         {
           text: "Excluir",
+          onPress: () => showSecondAlert(), // Chama uma função para mostrar um segundo alerta
+        },
+      ]
+    );
+  };
+  
+  // Função para mostrar um segundo alerta de confirmação
+  const showSecondAlert = () => {
+    Alert.alert(
+      "Confirmação Final",
+      "Esta ação é irreversível. Deseja realmente apagar todos os usuários? (Isso inclui todas as fotos e itens associados a eles)",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
           onPress: async () => {
             try {
               await AsyncStorage.removeItem("users");
@@ -216,11 +235,12 @@ const Config = ({ setLogado }) => {
               Alert.alert("Erro", "Falha ao apagar usuários.");
             }
           },
+          style: "destructive", // Estilo para destacar a ação perigosa
         },
       ]
     );
   };
-
+  
   return (
     <View style={styles.configContainer}>
       <Text style={styles.configTitle}>Área Perigosa</Text>
