@@ -77,9 +77,9 @@ const handleLogin = async (username, password, setLogado) => {
 const PreLogin = ({ navigation }) => {
   return (
     <View>
-      <View style={{ justifyContent: "center", alignItems: "center" }}>
+      <View style={{ justifyContent: "center", alignItems: "center", marginBottom: 10, marginTop: 20 }}>
         <Image
-          //source={require("logo.png")}
+          source={require("./logo.png")}
           style={{ width: 165, height: 140, marginBottom: 20 }}
         />
       </View>
