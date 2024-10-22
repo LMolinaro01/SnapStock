@@ -38,14 +38,22 @@ const handleLogin = async (username, password, setLogado) => {
     );
 
     if (user) {
+      await AsyncStorage.setItem("loggedInUser", username); // Salva o nome de usuário logado
       setLogado(true);
-      Alert.alert("Sucesso!", "Login realizado com sucesso.");
+      Alert.alert("Sucesso!", "Login realizado com êxito.");
     } else {
       Alert.alert("Erro!", "Credenciais incorretas.");
     }
   } catch (error) {
     Alert.alert("Erro!", "Falha ao processar login.");
   }
+};
+
+// Função para logout
+const logout = async (setLogado) => {
+  await AsyncStorage.removeItem("loggedInUser"); // Remove o usuário logado
+  setLogado(false);
+  Alert.alert("Deslogado", "Você foi deslogado com sucesso.");
 };
 
 const PreLogin = ({ navigation }) => {
@@ -136,28 +144,21 @@ const Registrar = ({ navigation }) => {
   const handleRegister = async () => {
     if (username && password) {
       try {
-        // Criptografa a senha antes de salvar
         const hashedPassword = hashPassword(password);
 
-        // Recupera os usuários armazenados
         const storedUsers = await AsyncStorage.getItem("users");
         let users = storedUsers ? JSON.parse(storedUsers) : [];
 
-        // Verifica se o usuário já existe
         const userExists = users.find((user) => user.username === username);
         if (userExists) {
           Alert.alert("Atenção!", "Usuário já existe.");
         } else {
-          // Adiciona o novo usuário com a senha criptografada ao AsyncStorage
           users.push({ username, password: hashedPassword });
 
-          // Certifica-se de que os dados são salvos antes de continuar
           await AsyncStorage.setItem("users", JSON.stringify(users));
-          Alert.alert("Sucesso!", "Usuário registrado com sucesso!");
+          Alert.alert("Sucesso!", "Usuário registrado corretamente!");
 
-          // Aguarda um pequeno atraso para garantir que os dados foram salvos corretamente
           setTimeout(() => {
-            // Leva o usuário para a tela de login
             navigation.navigate("Login");
           }, 500);
         }
@@ -196,7 +197,7 @@ const Registrar = ({ navigation }) => {
   );
 };
 
-const Config = () => {
+const Config = ({ setLogado }) => {
   const clearUsers = async () => {
     Alert.alert(
       "Excluir Todos os Usuários",
@@ -210,9 +211,8 @@ const Config = () => {
           text: "Excluir",
           onPress: async () => {
             try {
-              // Limpa os usuários do AsyncStorage
               await AsyncStorage.removeItem("users");
-              Alert.alert("Sucesso", "Todos os usuários foram apagados.");
+              Alert.alert("Concluído", "Todos os usuários foram apagados.");
             } catch (error) {
               Alert.alert("Erro", "Falha ao apagar usuários.");
             }
@@ -246,6 +246,13 @@ const Config = () => {
       >
         <Text style={styles.buttonText2}>Apagar todos os Usuários</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button2, { backgroundColor: "#ffe699" }]}
+        onPress={() => logout(setLogado)}
+      >
+        <Text style={styles.buttonText2}>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -266,7 +273,9 @@ const App = () => {
       >
         <Drawer.Screen name="Início" component={HomeScreen} />
         <Drawer.Screen name="Fotos" component={ItemDetailsScreen} />
-        <Drawer.Screen name="Configurações" component={Config} />
+        <Drawer.Screen name="Configurações">
+          {() => <Config setLogado={setLogado} />}
+        </Drawer.Screen>
       </Drawer.Navigator>
     </NavigationContainer>
   ) : (
