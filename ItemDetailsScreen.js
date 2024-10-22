@@ -42,7 +42,7 @@ const ItemDetailsScreen = ({ navigation }) => {
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.itemImage} />
       ) : (
-        <Text style={styles.placeholderImage}>Image</Text>
+        <Text style={styles.placeholderImage}>Imagem não disponível</Text>
       )}
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.name}</Text>
@@ -55,19 +55,22 @@ const ItemDetailsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-      />
+      {items.length > 0 ? (
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <Text style={styles.noItemsText}>Nenhum item disponível</Text>
+      )}
       <TouchableOpacity
         style={[styles.button, { backgroundColor: "#ffe699" }]}
         onPress={() => navigation.goBack()}
       >
         <Text style={styles.buttonText}>Fechar</Text>
-      </TouchableOpacity>{" "}
-
+      </TouchableOpacity>
     </View>
   );
 };
@@ -139,6 +142,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "blue",
     textDecorationLine: "underline",
+    textAlign: "center",
+  },
+  noItemsText: {
+    fontSize: 16,
+    marginBottom: 10,
     textAlign: "center",
   },
 });
