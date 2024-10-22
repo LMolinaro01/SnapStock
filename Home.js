@@ -94,28 +94,28 @@ const HomeScreen = ({ navigation }) => {
   // Função para abrir a galeria de imagens
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
+
     if (status !== "granted") {
       alert("Desculpe, precisamos da permissão para acessar a galeria.");
       return;
     }
-  
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-  
+
       // Verifica se está editando ou adicionando um novo item
       if (editingItem) {
         setEditingItem((prevItem) => ({ ...prevItem, image: uri }));
       } else {
         setNewItem((prevItem) => ({ ...prevItem, image: uri }));
       }
-  
+
       // Exibir o alerta de confirmação
       Alert.alert("Sucesso", "Imagem escolhida com sucesso!");
     } else {
@@ -140,10 +140,10 @@ const HomeScreen = ({ navigation }) => {
     const updatedItems = editingItem
       ? items.map((it) => (it.id === editingItem.id ? editingItem : it))
       : [...items, { ...newItem, id: items.length.toString() }];
-  
+
     setItems(updatedItems);
     storeItems(updatedItems); // Armazena os itens no AsyncStorage
-  
+
     // Limpa o estado ao adicionar ou editar
     setNewItem({
       name: "",
@@ -213,24 +213,27 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <Text style={styles.placeholderImage}>Image</Text>
       )}
-
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.name}</Text>
         <View style={styles.quantityContainer}>
-          <Button
-            color="#ffe699" // Cor dos botões
-            title="-"
+          <TouchableOpacity
             onPress={() => updateQuantity(item.id, -1)}
-          />
+            style={styles.roundButton}
+          >
+            <Text style={styles.roundButtonText}>-</Text>
+          </TouchableOpacity>
+
           <Text style={styles.itemQuantity}>{item.quantity}</Text>
-          <Button
-            color="#ffe699" // Cor dos botões
-            title="+"
+
+          <TouchableOpacity
             onPress={() => updateQuantity(item.id, 1)}
-          />
+            style={styles.roundButton}
+          >
+            <Text style={styles.roundButtonText}>+</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
+      
       <TouchableOpacity
         onPress={() => {
           setEditingItem(item);
@@ -261,7 +264,6 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
-      {/* Modal para exibir os detalhes do item */}
       {selectedItem && (
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
@@ -281,10 +283,15 @@ const HomeScreen = ({ navigation }) => {
                   <Text style={styles.itemLink}>{selectedItem.link}</Text>
                 </TouchableOpacity>
               )}
-              <Text style={styles.itemQuantity}>
-                Quantidade: {selectedItem.quantity}
+              <Text style={styles.itemQuantityModal}>
+                {selectedItem.quantity}
               </Text>
-              <Button title="Fechar" onPress={closeDetails} color="#ffe699" />
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ffe699" }]}
+                onPress={closeDetails}
+              >
+                <Text style={styles.buttonText}>Fechar</Text>
+              </TouchableOpacity>{" "}
             </View>
           </View>
         </Modal>
@@ -337,22 +344,28 @@ const HomeScreen = ({ navigation }) => {
             />
 
             <View>
-              <Button
-                title="Escolher da Galeria"
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ffe699" }]}
                 onPress={selectImage}
-                color="#ffe699"
-              />
+              >
+                <Text style={styles.buttonText}>Escolher da Galeria</Text>
+              </TouchableOpacity>
 
-              <Button
-                title={editingItem ? "Salvar Alterações" : "Adicionar Item"}
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ffe699" }]}
                 onPress={addItem}
-                color="#ffe699"
-              />
-              <Button
-                title="Cancelar"
+              >
+                <Text style={styles.buttonText}>
+                  {editingItem ? "Salvar Alterações" : "Adicionar Item"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ffe699" }]}
                 onPress={() => setModalVisible(false)}
-                color="#ffe699"
-              />
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -409,11 +422,22 @@ const styles = StyleSheet.create({
   itemName: {
     fontWeight: "bold",
     padding: 4,
+    fontSize: 14,
+    marginTop: 5,
   },
   itemQuantity: {
     fontSize: 14,
     fontWeight: "bold",
-    padding: 8,
+    padding: 4,
+  },
+  itemQuantityModal: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 35,
+    position: "absolute",
+    right: 20,
+    bottom: 50,
+    zIndex: 1,
   },
   quantityContainer: {
     flexDirection: "row",
@@ -454,9 +478,13 @@ const styles = StyleSheet.create({
   },
   itemDescription: {
     marginVertical: 10,
+    padding: 4,
+    textDecorationLine: "italic",
   },
   itemLink: {
     color: "blue",
+    padding: 4,
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
@@ -464,6 +492,31 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+  },
+  buttonText: {
+    color: "black",
+    fontWeight: "bold",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  roundButton: {
+    backgroundColor: "#ffe699", // Cor de fundo do botão
+    borderRadius: 50, // Deixa o botão redondo
+    width: 25, // Largura do botão
+    height: 25, // Altura do botão
+    alignItems: "center",
+    justifyContent: "center", // Centraliza o texto no botão
+  },
+  roundButtonText: {
+    color: "black", // Cor do texto do botão
+    fontSize: 20, // Tamanho do texto
+    fontWeight: "bold",
   },
 });
 
