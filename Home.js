@@ -1,6 +1,3 @@
-//quando eu tento editar uma imagem nada acontece, resolver isso
-
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -97,21 +94,30 @@ const HomeScreen = ({ navigation }) => {
   // Função para abrir a galeria de imagens
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+  
     if (status !== "granted") {
       alert("Desculpe, precisamos da permissão para acessar a galeria.");
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-
+  
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-      setNewItem((prevItem) => ({ ...prevItem, image: uri }));
+  
+      // Verifica se está editando ou adicionando um novo item
+      if (editingItem) {
+        setEditingItem((prevItem) => ({ ...prevItem, image: uri }));
+      } else {
+        setNewItem((prevItem) => ({ ...prevItem, image: uri }));
+      }
+  
+      // Exibir o alerta de confirmação
+      Alert.alert("Sucesso", "Imagem escolhida com sucesso!");
     } else {
       console.log("Seleção de imagem cancelada pelo usuário.");
     }
@@ -134,10 +140,11 @@ const HomeScreen = ({ navigation }) => {
     const updatedItems = editingItem
       ? items.map((it) => (it.id === editingItem.id ? editingItem : it))
       : [...items, { ...newItem, id: items.length.toString() }];
-
+  
     setItems(updatedItems);
     storeItems(updatedItems); // Armazena os itens no AsyncStorage
-
+  
+    // Limpa o estado ao adicionar ou editar
     setNewItem({
       name: "",
       quantity: 1,
@@ -145,6 +152,7 @@ const HomeScreen = ({ navigation }) => {
       link: "",
       image: null,
     });
+    setEditingItem(null); // Limpar o item em edição
     setModalVisible(false);
   };
 
@@ -460,4 +468,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
