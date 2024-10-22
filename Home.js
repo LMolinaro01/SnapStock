@@ -123,6 +123,32 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status !== "granted") {
+      alert("Desculpe, precisamos da permissão para acessar a câmera.");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      if (editingItem) {
+        setEditingItem((prevItem) => ({ ...prevItem, image: uri }));
+      } else {
+        setNewItem((prevItem) => ({ ...prevItem, image: uri }));
+      }
+      Alert.alert("Sucesso", "Foto capturada com sucesso!");
+    } else {
+      console.log("Captura de foto cancelada pelo usuário.");
+    }
+  };
+
   const [editingItem, setEditingItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null); // Para armazenar o item selecionado
 
@@ -268,16 +294,13 @@ const HomeScreen = ({ navigation }) => {
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              {/* Verificação da imagem */}
               {selectedItem.image ? (
                 <Image
                   source={{ uri: selectedItem.image }}
                   style={styles.detailImage}
                 />
               ) : (
-                <Text style={styles.placeholderImage}>
-                  Imagem não disponível
-                </Text>
+                <Text style={styles.placeholderImage}>Image</Text>
               )}
               <Text style={styles.itemName}>{selectedItem.name}</Text>
               <Text style={styles.itemDescription}>
@@ -351,6 +374,13 @@ const HomeScreen = ({ navigation }) => {
             />
 
             <View>
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ffe699" }]}
+                onPress={takePhoto}
+              >
+                <Text style={styles.buttonText}>Tirar Foto</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: "#ffe699" }]}
                 onPress={selectImage}
@@ -513,16 +543,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   roundButton: {
-    backgroundColor: "#ffe699", // Cor de fundo do botão
-    borderRadius: 50, // Deixa o botão redondo
-    width: 25, // Largura do botão
-    height: 25, // Altura do botão
+    backgroundColor: "#ffe699",
+    borderRadius: 20,
+    width: 25,
+    height: 25,
     alignItems: "center",
-    justifyContent: "center", // Centraliza o texto no botão
+    justifyContent: "center",
+    marginHorizontal: 8,
   },
   roundButtonText: {
-    color: "black", // Cor do texto do botão
-    fontSize: 20, // Tamanho do texto
+    color: "black",
+    fontSize: 20,
     fontWeight: "bold",
   },
 });
