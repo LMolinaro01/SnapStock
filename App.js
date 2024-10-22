@@ -24,32 +24,6 @@ const hashPassword = (password) => {
   return CryptoJS.SHA256(password).toString();
 };
 
-// Função para salvar o usuário
-const storeUser = async (username, password) => {
-  try {
-    // Criptografa a senha
-    const hashedPassword = hashPassword(password);
-
-    // Recupera os usuários já armazenados
-    const usersJSON = await AsyncStorage.getItem("users");
-    let users = usersJSON ? JSON.parse(usersJSON) : [];
-
-    // Verifica se o usuário já existe
-    const userExists = users.some((user) => user.username === username);
-
-    if (userExists) {
-      Alert.alert("Erro", "Usuário já registrado.");
-    } else {
-      // Adiciona o novo usuário
-      users.push({ username, password: hashedPassword });
-      await AsyncStorage.setItem("users", JSON.stringify(users));
-      Alert.alert("Sucesso", "Usuário registrado com sucesso.");
-    }
-  } catch (error) {
-    Alert.alert("Erro", "Falha ao salvar usuário.");
-  }
-};
-
 // Função para verificar o login
 const handleLogin = async (username, password, setLogado) => {
   try {
