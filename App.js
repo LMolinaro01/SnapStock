@@ -210,6 +210,7 @@ const Config = () => {
           text: "Excluir",
           onPress: async () => {
             try {
+              // Limpa os usuários do AsyncStorage
               await AsyncStorage.removeItem("users");
               Alert.alert("Sucesso", "Todos os usuários foram apagados.");
             } catch (error) {
@@ -244,7 +245,7 @@ const Config = () => {
         onPress={clearUsers}
       >
         <Text style={styles.buttonText2}>Apagar todos os Usuários</Text>
-      </TouchableOpacity>{" "}
+      </TouchableOpacity>
     </View>
   );
 };
