@@ -91,7 +91,6 @@ const HomeScreen = ({ navigation }) => {
     return true; // iOS não requer essa permissão
   };
 
-
   // Função para abrir a galeria de imagens
   const selectImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -234,7 +233,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-      
+
       <TouchableOpacity
         onPress={() => {
           setEditingItem(item);
@@ -269,10 +268,17 @@ const HomeScreen = ({ navigation }) => {
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Image
-                source={{ uri: selectedItem.image }}
-                style={styles.detailImage}
-              />
+              {/* Verificação da imagem */}
+              {selectedItem.image ? (
+                <Image
+                  source={{ uri: selectedItem.image }}
+                  style={styles.detailImage}
+                />
+              ) : (
+                <Text style={styles.placeholderImage}>
+                  Imagem não disponível
+                </Text>
+              )}
               <Text style={styles.itemName}>{selectedItem.name}</Text>
               <Text style={styles.itemDescription}>
                 {selectedItem.description}
@@ -292,7 +298,7 @@ const HomeScreen = ({ navigation }) => {
                 onPress={closeDetails}
               >
                 <Text style={styles.buttonText}>Fechar</Text>
-              </TouchableOpacity>{" "}
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
