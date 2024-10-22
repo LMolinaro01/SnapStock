@@ -50,9 +50,8 @@ const handleLogin = async (username, password, setLogado) => {
 };
 
 // Função para logout
-const logout = async (setLogado) => {
-  await AsyncStorage.removeItem("loggedInUser"); // Remove o usuário logado
-  setLogado(false);
+const logout = (setLogado) => {
+  setLogado(false); // Apenas define o estado para não logado
   Alert.alert("Deslogado", "Você foi deslogado com sucesso.");
 };
 
