@@ -51,7 +51,14 @@ const handleLogin = async (username, password, setLogado) => {
 const PreLogin = ({ navigation }) => {
   return (
     <View>
-      <View style={{ justifyContent: "center", alignItems: "center", marginBottom: 10, marginTop: 20 }}>
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 10,
+          marginTop: 20,
+        }}
+      >
         <Image
           source={require("./logo.png")}
           style={{ width: 165, height: 140, marginBottom: 20 }}
@@ -75,7 +82,13 @@ const PreLogin = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: 20,
+        }}
+      >
         <Text>© Leonardo Molinaro</Text>
       </View>
     </View>
@@ -105,7 +118,9 @@ const FormularioLogin = ({ route }) => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.loginButton]}
-          onPress={() => handleLogin(username, password, route.params.funcLogar)}
+          onPress={() =>
+            handleLogin(username, password, route.params.funcLogar)
+          }
         >
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
@@ -119,41 +134,40 @@ const Registrar = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
-  if (username && password) {
-    try {
-      // Criptografa a senha antes de salvar
-      const hashedPassword = hashPassword(password);
+    if (username && password) {
+      try {
+        // Criptografa a senha antes de salvar
+        const hashedPassword = hashPassword(password);
 
-      // Recupera os usuários armazenados
-      const storedUsers = await AsyncStorage.getItem("users");
-      let users = storedUsers ? JSON.parse(storedUsers) : [];
+        // Recupera os usuários armazenados
+        const storedUsers = await AsyncStorage.getItem("users");
+        let users = storedUsers ? JSON.parse(storedUsers) : [];
 
-      // Verifica se o usuário já existe
-      const userExists = users.find((user) => user.username === username);
-      if (userExists) {
-        Alert.alert("Atenção!","Usuário já existe.");
-      } else {
-        // Adiciona o novo usuário com a senha criptografada ao AsyncStorage
-        users.push({ username, password: hashedPassword });
-        
-        // Certifica-se de que os dados são salvos antes de continuar
-        await AsyncStorage.setItem("users", JSON.stringify(users));
-        Alert.alert("Sucesso!","Usuário registrado com sucesso!");
+        // Verifica se o usuário já existe
+        const userExists = users.find((user) => user.username === username);
+        if (userExists) {
+          Alert.alert("Atenção!", "Usuário já existe.");
+        } else {
+          // Adiciona o novo usuário com a senha criptografada ao AsyncStorage
+          users.push({ username, password: hashedPassword });
 
-        // Aguarda um pequeno atraso para garantir que os dados foram salvos corretamente
-        setTimeout(() => {
-          // Leva o usuário para a tela de login
-          navigation.navigate("Login");
-        }, 500);
+          // Certifica-se de que os dados são salvos antes de continuar
+          await AsyncStorage.setItem("users", JSON.stringify(users));
+          Alert.alert("Sucesso!", "Usuário registrado com sucesso!");
+
+          // Aguarda um pequeno atraso para garantir que os dados foram salvos corretamente
+          setTimeout(() => {
+            // Leva o usuário para a tela de login
+            navigation.navigate("Login");
+          }, 500);
+        }
+      } catch (error) {
+        alert("Erro ao registrar usuário: " + error);
       }
-    } catch (error) {
-      alert("Erro ao registrar usuário: " + error);
+    } else {
+      alert("Preencha todos os campos.");
     }
-  } else {
-    alert("Preencha todos os campos.");
-  }
   };
-
 
   return (
     <View style={{ padding: 20 }}>
@@ -182,8 +196,6 @@ const Registrar = ({ navigation }) => {
   );
 };
 
-
-
 const Config = () => {
   const clearUsers = async () => {
     Alert.alert(
@@ -192,7 +204,7 @@ const Config = () => {
       [
         {
           text: "Cancelar",
-          style: "cancel"
+          style: "cancel",
         },
         {
           text: "Excluir",
@@ -203,18 +215,36 @@ const Config = () => {
             } catch (error) {
               Alert.alert("Erro", "Falha ao apagar usuários.");
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
 
   return (
     <View style={styles.configContainer}>
-      <Text style={styles.configTitle}>Configurações</Text>
-      <TouchableOpacity style={styles.button} onPress={clearUsers}>
-        <Text style={styles.buttonText}>Apagar Todos os Usuários</Text>
-      </TouchableOpacity>
+      <Text style={styles.configTitle}>Área Perigosa</Text>
+
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 10,
+          marginTop: 20,
+        }}
+      >
+        <Image
+          source={require("./danger.png")}
+          style={{ width: 165, height: 140, marginBottom: 20 }}
+        />
+      </View>
+
+      <TouchableOpacity
+        style={[styles.button2, { backgroundColor: "#ffe699" }]}
+        onPress={clearUsers}
+      >
+        <Text style={styles.buttonText2}>Apagar todos os Usuários</Text>
+      </TouchableOpacity>{" "}
     </View>
   );
 };
@@ -224,13 +254,15 @@ const App = () => {
 
   return EstaLogado ? (
     <NavigationContainer>
-      <Drawer.Navigator screenOptions={{
-          drawerActiveTintColor: "#ffe699", 
-          drawerInactiveTintColor: "#000", 
+      <Drawer.Navigator
+        screenOptions={{
+          drawerActiveTintColor: "#ffe699",
+          drawerInactiveTintColor: "#000",
           drawerStyle: {
-            backgroundColor: "#fff", 
+            backgroundColor: "#fff",
           },
-        }}>
+        }}
+      >
         <Drawer.Screen name="Início" component={HomeScreen} />
         <Drawer.Screen name="Fotos" component={ItemDetailsScreen} />
         <Drawer.Screen name="Configurações" component={Config} />
@@ -250,7 +282,6 @@ const App = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-
 };
 
 const styles = StyleSheet.create({
@@ -270,25 +301,38 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   registerButton: {
-    backgroundColor: "#ffe699", 
+    backgroundColor: "#ffe699",
   },
   loginButton: {
-    backgroundColor: "#ffe699", 
+    backgroundColor: "#ffe699",
   },
   buttonText: {
-    color: "#000", 
+    color: "#000",
     fontWeight: "bold",
+  },
+  buttonText2: {
+    color: "black",
+    fontWeight: "bold",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button2: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
   },
   configContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 20,
   },
   configTitle: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
   },
 });
 
