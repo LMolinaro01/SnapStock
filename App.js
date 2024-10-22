@@ -39,12 +39,12 @@ const handleLogin = async (username, password, setLogado) => {
 
     if (user) {
       setLogado(true);
-      Alert.alert("Sucesso", "Login realizado com sucesso.");
+      Alert.alert("Sucesso!", "Login realizado com sucesso.");
     } else {
-      Alert.alert("Erro", "Credenciais incorretas.");
+      Alert.alert("Erro!", "Credenciais incorretas.");
     }
   } catch (error) {
-    Alert.alert("Erro", "Falha ao processar login.");
+    Alert.alert("Erro!", "Falha ao processar login.");
   }
 };
 
@@ -131,14 +131,14 @@ const Registrar = ({ navigation }) => {
       // Verifica se o usuário já existe
       const userExists = users.find((user) => user.username === username);
       if (userExists) {
-        alert("Usuário já existe.");
+        Alert.alert("Atenção!","Usuário já existe.");
       } else {
         // Adiciona o novo usuário com a senha criptografada ao AsyncStorage
         users.push({ username, password: hashedPassword });
         
         // Certifica-se de que os dados são salvos antes de continuar
         await AsyncStorage.setItem("users", JSON.stringify(users));
-        alert("Usuário registrado com sucesso!");
+        Alert.alert("Sucesso!","Usuário registrado com sucesso!");
 
         // Aguarda um pequeno atraso para garantir que os dados foram salvos corretamente
         setTimeout(() => {
