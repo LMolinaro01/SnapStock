@@ -20,7 +20,7 @@ O **SnapStock** é uma aplicação móvel desenvolvida em **React Native** para 
 O SnapStock oferece um sistema de login seguro, utilizando **criptografia** para proteger as credenciais dos usuários. As senhas são criptografadas com o algoritmo **SHA-256** através da biblioteca **CryptoJS**, garantindo que as informações sensíveis sejam protegidas, mesmo que armazenadas localmente.
 
 ### 2. **Gerenciamento de Sessões**
-Após o login bem-sucedido, uma **sessão personalizada** é criada para cada usuário. Essa sessão é gerenciada pelo **AsyncStorage**, permitindo a navegação pelo sistema sem a necessidade de relogar. Ao final da sessão, os dados do usuário são removidos da memória, proporcionando mais segurança e evitando que informações sensíveis permaneçam acessíveis após o uso.
+Após o login bem-sucedido, uma sessão personalizada é criada para cada usuário, permitindo uma experiência única e individualizada. Os itens salvos são armazenados para cada usuário utilizando o AsyncStorage, facilitando a navegação pelo sistema.
 
 ### 3. **Persistência de Dados com AsyncStorage**
 O SnapStock garante a **persistência de dados** de forma local com **AsyncStorage**, mantendo as informações dos usuários, como produtos e preferências, mesmo após o aplicativo ser fechado. Ao abrir o aplicativo novamente, os dados são carregados automaticamente, oferecendo uma experiência fluida e contínua.
