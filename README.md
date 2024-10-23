@@ -4,7 +4,6 @@ O **SnapStock** é uma aplicação móvel desenvolvida em **React Native** para 
 
 ## Exibição
 <img src="https://github.com/user-attachments/assets/c7b17041-94e4-436a-b5bc-ce8dcef73f6d" width="300" height="650" />
-<img src="https://github.com/user-attachments/assets/1053c2df-9e3b-45d3-8ebd-5045316c2108" width="300" height="650" />
 <img src="https://github.com/user-attachments/assets/37823503-c6a0-4138-8a51-80cb7c2676a3" width="300" height="650" />
 <img src="https://github.com/user-attachments/assets/8c322091-110d-4062-891e-ca571d63af97" width="300" height="650" />
 <img src="https://github.com/user-attachments/assets/e31f8f11-ee26-45c7-9d1c-0496131aa4b1" width="300" height="650" />
