@@ -18,24 +18,27 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 
 // Função para armazenar os itens no AsyncStorage
-const storeItems = async (items) => {
+const storeItems = async (items, username) => {
   try {
-    await AsyncStorage.setItem("items", JSON.stringify(items));
+    await AsyncStorage.setItem(`items_${username}`, JSON.stringify(items));
   } catch (error) {
     alert("Erro ao salvar os dados: " + error);
   }
 };
 
+
 // Função para recuperar os itens do AsyncStorage
-const retrieveItems = async () => {
+const retrieveItems = async (username) => {
   try {
-    const storedItems = await AsyncStorage.getItem("items");
+    const storedItems = await AsyncStorage.getItem(`items_${username}`);
     return storedItems !== null ? JSON.parse(storedItems) : [];
   } catch (error) {
     alert("Erro ao recuperar os dados: " + error);
     return [];
   }
 };
+
+
 
 const HomeScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
@@ -47,6 +50,19 @@ const HomeScreen = ({ navigation }) => {
     link: "",
     image: null,
   });
+
+
+  useEffect(() => {
+    const loadItems = async () => {
+      const username = await AsyncStorage.getItem("loggedInUser");
+      if (username) {
+        const storedItems = await retrieveItems(username);
+        setItems(storedItems);
+      }
+    };
+    loadItems();
+  }, []);
+  
 
   // Função para solicitar permissão de acesso à galeria no Android
   const requestGalleryPermission = async () => {
@@ -162,14 +178,17 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   // Função para adicionar ou editar item
-  const addItem = () => {
+  const addItem = async () => {
+    const username = await AsyncStorage.getItem("loggedInUser");
     const updatedItems = editingItem
       ? items.map((it) => (it.id === editingItem.id ? editingItem : it))
       : [...items, { ...newItem, id: items.length.toString() }];
-
+  
     setItems(updatedItems);
-    storeItems(updatedItems); // Armazena os itens no AsyncStorage
-
+    if (username) {
+      await storeItems(updatedItems, username); // Armazena os itens para o usuário específico
+    }
+  
     // Limpa o estado ao adicionar ou editar
     setNewItem({
       name: "",
@@ -181,6 +200,7 @@ const HomeScreen = ({ navigation }) => {
     setEditingItem(null); // Limpar o item em edição
     setModalVisible(false);
   };
+  
 
   const updateQuantity = (id, amount) => {
     const updatedItems = items.map((item) => {

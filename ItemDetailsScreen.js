@@ -13,13 +13,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Função para recuperar os itens do AsyncStorage
 const retrieveItems = async () => {
   try {
-    const storedItems = await AsyncStorage.getItem("items");
+    // Obtém o nome do usuário atualmente logado
+    const username = await AsyncStorage.getItem("loggedInUser");
+    if (!username) {
+      return []; // Caso não haja usuário logado, retorna uma lista vazia
+    }
+    // Recupera itens específicos do usuário
+    const storedItems = await AsyncStorage.getItem(`items_${username}`);
     return storedItems !== null ? JSON.parse(storedItems) : [];
   } catch (error) {
     alert("Erro ao recuperar os dados: " + error);
     return [];
   }
 };
+
+
 
 const ItemDetailsScreen = ({ navigation }) => {
   const [items, setItems] = useState([]);
@@ -69,7 +77,7 @@ const ItemDetailsScreen = ({ navigation }) => {
         style={[styles.button, { backgroundColor: "#ffe699" }]}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.buttonText}>Fechar</Text>
+        <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>
     </View>
   );
