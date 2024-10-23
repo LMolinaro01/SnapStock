@@ -1,39 +1,53 @@
-# **SnapStock: Aplicação Mobile de Controle de Estoque com React Native**
+# SnapStock - Aplicativo de Gerenciamento de Estoque
 
-(Projeto em Andamento)
+O **SnapStock** é uma aplicação móvel desenvolvida em **React Native** para facilitar o gerenciamento de estoques de forma prática e intuitiva. O sistema permite que os usuários adicionem, visualizem e gerenciem produtos de maneira eficiente, garantindo a persistência de dados e segurança de informações sensíveis.
 
-### **Planejamento**
+## Exibição
 
-![image](https://github.com/user-attachments/assets/70150c54-bd36-4bde-bf14-c221481551c5)
+![image](https://github.com/user-attachments/assets/c7b17041-94e4-436a-b5bc-ce8dcef73f6d)
+![image](https://github.com/user-attachments/assets/37823503-c6a0-4138-8a51-80cb7c2676a3)
+![image](https://github.com/user-attachments/assets/8c322091-110d-4062-891e-ca571d63af97)
+![image](https://github.com/user-attachments/assets/e31f8f11-ee26-45c7-9d1c-0496131aa4b1)
+![image](https://github.com/user-attachments/assets/3fb0d2c5-4991-4daa-8dc0-45af35c4d6aa)
+![image](https://github.com/user-attachments/assets/431d7cad-0ebb-4a80-9a29-c7b3df70d130)
+![image](https://github.com/user-attachments/assets/d574ae69-6b6d-486d-80da-348d6134ebe6)
+![image](https://github.com/user-attachments/assets/1f11d782-8318-4be7-b420-69b54994b321)
 
-**SnapStock** é uma aplicação Android desenvolvida com **React Native**, projetada para otimizar o controle de estoque de forma intuitiva e eficiente. Este aplicativo permite aos usuários gerenciar seu inventário adicionando itens através de fotos capturadas diretamente no aplicativo, registrando detalhes como nome, quantidade, descrição, link para compra e localização dos itens.
+## Funcionalidades
 
-### **Funcionalidades**
+### 1. **Login Seguro**
+O SnapStock oferece um sistema de login seguro, utilizando **criptografia** para proteger as credenciais dos usuários. As senhas são criptografadas com o algoritmo **SHA-256** através da biblioteca **CryptoJS**, garantindo que as informações sensíveis sejam protegidas, mesmo que armazenadas localmente.
 
-- **Adição de Itens**: Capture fotos e registre informações como nome, quantidade, descrição, links de compra e localização.
-- **Gerenciamento de Quantidade**: Aumente ou diminua a quantidade de itens diretamente da interface. Caso a quantidade chegue a zero, o aplicativo solicita a confirmação para excluir o item do estoque.
-- **Links de Compra**: Adicione links de compra para facilitar o reabastecimento do estoque.
-- **Notificações de Estoque Baixo**: Receba notificações no celular quando o estoque de um item atingir níveis baixos.
-- **Armazenamento Persistente**: Todos os itens e informações são armazenados de forma segura utilizando o **AsyncStorage** para garantir persistência de dados entre sessões.
-- **Pesquisa e Filtros**: Encontre itens rapidamente com funcionalidades de pesquisa avançada e categorização automática.
-- **Tirar Fotos de Produtos**: Capture fotos diretamente no aplicativo usando a câmera do dispositivo, facilitando a identificação visual dos itens.
+### 2. **Gerenciamento de Sessões**
+Após o login bem-sucedido, uma **sessão personalizada** é criada para cada usuário. Essa sessão é gerenciada pelo **AsyncStorage**, permitindo a navegação pelo sistema sem a necessidade de relogar. Ao final da sessão, os dados do usuário são removidos da memória, proporcionando mais segurança e evitando que informações sensíveis permaneçam acessíveis após o uso.
 
-### **Tecnologias Utilizadas**
+### 3. **Persistência de Dados com AsyncStorage**
+O SnapStock garante a **persistência de dados** de forma local com **AsyncStorage**, mantendo as informações dos usuários, como produtos e preferências, mesmo após o aplicativo ser fechado. Ao abrir o aplicativo novamente, os dados são carregados automaticamente, oferecendo uma experiência fluida e contínua.
 
-- **React Native**: Framework para desenvolvimento mobile multiplataforma.
-- **JavaScript**: Linguagem de programação base do projeto.
-- **AsyncStorage**: Para armazenamento persistente local dos dados.
-- **React Navigation**: Navegação entre telas utilizando **StackNavigator** e **DrawerNavigator**.
-- **Bibliotecas de terceiros**: Uso de bibliotecas como **react-native-image-picker** para captura de imagens.
+### 4. **Gerenciamento de Produtos**
+O SnapStock permite que os usuários gerenciem o estoque de produtos, oferecendo funcionalidades como:
+- Cadastro de novos produtos
+- Edição de produtos existentes
+- Exclusão de produtos
+- Informações de cada produto, como:
+  - Nome
+  - Quantidade disponível
+  - Descrição
+  - Link de referência (opcional)
+  - Imagem do produto
 
-### **Testes Automatizados**
+Esses itens são exibidos em uma **FlatList**, otimizando a performance do aplicativo ao lidar com grandes listas de produtos.
 
-Serão implementados **testes automatizados** para garantir a qualidade e funcionalidade da aplicação, utilizando ferramentas como **Jest** e **React Native Testing Library**. Os testes cobrirão funcionalidades críticas, como:
+### 5. **Captura de Imagens**
+Com a integração do módulo **ImagePicker** do **Expo**, o SnapStock permite que os usuários capturem imagens de produtos diretamente da câmera do dispositivo ou escolham imagens da galeria. As imagens podem ser usadas para registrar visualmente os produtos e são armazenadas de forma persistente.
 
-- Adição, remoção e edição de itens.
-- Persistência de dados usando AsyncStorage.
-- Funcionamento das notificações de estoque baixo.
-- Testes de interface para navegação e modais.
+## Tecnologias Utilizadas
+- **React Native**: Framework principal para desenvolvimento do aplicativo.
+- **AsyncStorage**: Persistência de dados local.
+- **CryptoJS**: Criptografia de senhas.
+- **Expo ImagePicker**: Captura e seleção de imagens.
+- **React Navigation**: Navegação entre telas.
+
 
 ### **Como Contribuir**
 
