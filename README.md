@@ -1,5 +1,10 @@
 # **SnapStock: Controle de Estoque com React Native**
 
+https://docs.google.com/document/d/1mStFyKAAjN5LBIM3SeS8SOnwYV3rUwku931m1S919Jw/edit?usp=sharing
+
+https://www.youtube.com/watch?v=ecr5YdzFdSE
+
+
 (Projeto em Andamento)
 
 ### Planejamento
