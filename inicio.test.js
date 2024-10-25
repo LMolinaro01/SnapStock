@@ -1,15 +1,13 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HomeScreen from './HomeScreen'; // Certifique-se de ajustar o caminho de importação
+import HomeScreen from './HomeScreen'; 
 
-// Mock do AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
   getItem: jest.fn(() => Promise.resolve(null)),
 }));
 
-// Mock do ImagePicker
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: jest.fn(() => ({ status: 'granted' })),
   launchImageLibraryAsync: jest.fn(() => ({
