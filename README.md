@@ -2,6 +2,8 @@
 
 O **SnapStock** é uma aplicação móvel desenvolvida em **React Native** para facilitar o gerenciamento de estoques de forma prática e intuitiva. O sistema permite que os usuários adicionem, visualizem e gerenciem produtos de maneira eficiente, garantindo a persistência de dados e segurança de informações sensíveis.
 
+https://www.youtube.com/watch?v=ecr5YdzFdSE
+
 ## Exibição
 <img src="https://github.com/user-attachments/assets/c7b17041-94e4-436a-b5bc-ce8dcef73f6d" width="300" height="650" />
 <img src="https://github.com/user-attachments/assets/37823503-c6a0-4138-8a51-80cb7c2676a3" width="300" height="650" />
